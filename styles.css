@@ -1,0 +1,630 @@
+/* Estilos generales */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Barra de Menú */
+.navbar {
+    background-color: #5cb249;
+    padding: 10px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-img {
+    height: 70px;
+    width: auto;
+    padding-block-start: 2vh;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.navbar .logo {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.navbar .nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.navbar .nav-links li {
+    margin-left: 20px;
+}
+
+.navbar .nav-links a {
+    color: #e9671d;
+    text-decoration: none;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar .nav-links a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Contenedor Principal */
+.contai {
+    flex: 1;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 1400px;
+}
+
+.foto-contai {
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    background-image: url("img/historico.jpg");
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+h1 {
+    text-align: center;
+    color: #e9671d;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+/* Estilos del buscador */
+.search-container {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.search-container input[type="text"] {
+    width: 70%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.search-container input[type="text"]:focus {
+    border-color: #5cb249;
+}
+
+.search-container button {
+    padding: 10px 20px;
+    background-color: #5cb249;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.search-container button:hover {
+    background-color: #4a9340;
+}
+
+/* Estilos de la tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #5cb249;
+    color: white;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilos de los botones de acciones */
+.btn-editar, .btn-eliminar {
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 5px;
+    transition: background-color 0.3s;
+}
+
+.btn-editar {
+    background-color: #ffc107; /* Color amarillo */
+    color: black;
+}
+
+.btn-editar:hover {
+    background-color: #e0a800; /* Color amarillo oscuro */
+}
+
+.btn-eliminar {
+    background-color: #dc3545; /* Color rojo */
+    color: white;
+}
+
+.btn-eliminar:hover {
+    background-color: #c82333; /* Color rojo oscuro */
+}
+
+/* Boton agregar reporte */
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-agregar {
+    padding: 10px 20px;
+    background-color: #5cb249;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-agregar:hover {
+    background-color: #4a9340;
+}
+
+/* Boton Guardar */
+.btn-guadar {
+    padding: 10px 20px;
+    background-color: #5cb249;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-guadar:hover {
+    background-color: #4a9340;
+}
+
+/* Boton Imprimir */
+.btn-imprimir {
+    padding: 10px 20px;
+    background-color: #5cb249;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-imprimir:hover {
+    background-color: #4a9340;
+}
+
+/* Boton Editar! */
+.btn-editar1 {
+    padding: 10px 20px;
+    background-color: #5cb249;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-editar1:hover {
+    background-color: #4a9340;
+}
+
+/* Pagina de Editar y Agregar Bitácora */
+.form-conteiner {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-conteiner label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-conteiner input[type="text"],
+.form-conteiner input[type="date"],
+.form-conteiner textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.form-conteiner input[type="text"]:focus,
+.form-conteiner input[type="date"]:focus,
+.form-conteiner textarea:focus {
+    border-color: #5cb249;
+}
+
+.form-conteiner textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+.form-conteiner button {
+    padding: 10px 20px;
+    background-color: #5cb249;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.form-conteiner button:hover {
+    background-color: #4a9340;
+}
+
+/*Diseño de columna para los formulario*/
+.form-columns {
+    display: flex;
+    gap: 20px;
+}
+
+.col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/*--------------------------------------------Pagina 2 Agregar y Editar de Bitacoras */
+
+/* Formulario Agregar y Editor */
+
+.col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 196px;
+}
+
+.input-group span {
+    position: absolute;
+    left: 0;
+    padding: 20px 10px 10px;
+    font-size: 1em;
+    letter-spacing: 00.05em;
+    transition: 0.3s ease;
+    pointer-events: none;
+    color: #777;
+}
+
+.input-group input:valid ~span,
+.input-group input:focus ~span {
+    color: #4a9340;
+    transform: translateX(-10px) translateY(-34px);
+    font-size: 0.75em;
+}
+
+.input-group input {
+    position: relative;
+    width: 200%;
+    padding: 20px 10px 10px;
+    background: transparent;
+    outline: none;
+    box-shadow: none;
+    border: none;
+    font-size: 1em;
+    letter-spacing: 0.05em;
+    transition: 0.5s;
+    z-index: 10;
+    color: #fff;
+}
+
+.input-group select {
+    position: relative;
+    width: 200%;
+    padding: 20px 10px 10px;
+    background: transparent;
+    outline: none;
+    box-shadow: none;
+    border: none;
+    font-size: 1em;
+    letter-spacing: 0.05em;
+    transition: 0.5s;
+    z-index: 10;
+    color: #fff;
+}
+
+.input-group select:focus ~span,
+.input-group select:valid ~span {
+    color: #4a9340;
+    transform: translateX(-10px) translateY(-34px);
+    font-size: 0.75em;
+}
+
+.input-group i {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 205%;
+    height: 2px;
+    border-radius: 4px;
+    transition: 0.3s ease;
+    pointer-events: none;
+    z-index: 9;
+    background: #4a9340;
+}
+
+.input-group input:valid ~i,
+.input-group input:focus ~i {
+    height: 44px;
+}
+
+.input-group select:valid ~i,
+.input-group select:focus ~i {
+    height: 44px;
+}
+
+/*Boton Actualizar y Guardar*/
+/* Estilos para el botón */
+.but-box {
+    background: transparent;
+    color: #fff;
+    text-decoration: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+    width: 180px;
+    height: auto;
+    margin-left: 85vh;
+}
+
+.box {
+    display: block;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 900;
+    color: #262626;
+    background: transparent;
+    transition: 0.5s linear;
+    position: relative;
+    padding: 2px;
+    height: 22px;
+}
+
+/* Línea inferior animada */
+.box:before {
+    position: absolute;
+    content: '';
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    border-bottom: 2px solid transparent;
+    border-left: 2px solid transparent;
+    box-sizing: border-box;
+    transform: translateX(100%);
+}
+
+.box:after {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    border-top: 2px solid transparent;
+    border-right: 2px solid transparent;
+    box-sizing: border-box;
+    transform: translateX(-100%);
+}
+
+.but-box:hover .box:before {
+    border-color: #3a7a30;
+    height: 100%;
+    transform: translateX(0);
+    transition: .3s transform linear, .3 height linear .3s;
+}
+
+.but-box:hover .box:after {
+    border-color: #3a7a30;
+    height: 100%;
+    transform: translateX(0);
+    transition: .3s transform linear, .3 height linear .5s;
+}
+
+.but-box:hover .box {
+    color: #3a7a30;
+}
+
+/* Estilos generales del footer */
+.footer {
+    background-color: #5cb249; /* Fondo verde */
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Sombra */
+}
+
+.footer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Logo */
+.footer-logo img {
+    height: 60px;
+    width: auto;
+    transition: transform 0.3s ease; /* Animación al hacer hover */
+}
+
+.footer-logo img:hover {
+    transform: scale(1.1); /* Efecto de zoom al pasar el mouse */
+}
+
+/* Línea divisoria */
+.footer-linea {
+    width: 2px;
+    height: 40px;
+    background-color: #fff;
+    opacity: 0.7;
+}
+
+/* Información */
+.footer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.footer-year {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.footer-slogan {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Redes sociales */
+.footer-social {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icon {
+    color: #fff;
+    font-size: 1.2rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.social-icon:hover {
+    color: #1abc9c; /* Cambia el color al hacer hover */
+    transform: translateY(-3px); /* Efecto de levantamiento */
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .footer-linea {
+        display: none; /* Oculta la línea en móviles */
+    }
+
+    .footer-info {
+        text-align: center;
+    }
+
+    .footer-social {
+        margin-top: 10px;
+    }
+}
+
+
+
+
+/* Estilos personalizados para los botones */
+.btn-custom {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-custom:hover {
+    background-color: #4a9340; /* Un tono más oscuro de verde */
+    transform: translateY(-2px); /* Efecto de levantamiento */
+}
+
+.btn-custom i {
+    margin-right: 8px;
+}
+
+
+
+
+
+/* En styles.css */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+
