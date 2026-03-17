@@ -42,7 +42,6 @@ try {
     die("Error al obtener datos del alumno: " . $e->getMessage());
 }
 
-// Formatear datos para el QR
 $datosQR = [
     'tipo' => 'ALUMNO_CECYTE',
     'version' => '1.0',
@@ -57,16 +56,11 @@ $datosQR = [
     'fecha_generacion' => date('Y-m-d H:i:s')
 ];
 
-// Convertir a JSON para el QR
 $qrData = json_encode($datosQR, JSON_UNESCAPED_UNICODE);
-
-// URL para el cÛdigo QR (usando servicio externo o librerÌa local)
 $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($qrData);
 
-// Determinar tipo de salida
-$tipo = $_GET['tipo'] ?? 'html'; // html, download, print
+$tipo = $_GET['tipo'] ?? 'html';
 
-// Si se solicita descarga directa
 if ($tipo == 'download') {
     header('Content-Type: image/png');
     header('Content-Disposition: attachment; filename="QR_' . $alumno['matricula'] . '.png"');
@@ -74,91 +68,34 @@ if ($tipo == 'download') {
     exit;
 }
 
-// Si se solicita impresiÛn
 if ($tipo == 'print') {
-    // Mostrar p·gina optimizada para impresiÛn
     ?>
     <!DOCTYPE html>
     <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>CÛdigo QR - <?php echo htmlspecialchars($alumno['matricula']); ?></title>
+        <title>Imprimir QR - <?php echo htmlspecialchars($alumno['matricula']); ?></title>
         <style>
-            body { 
-                font-family: Arial, sans-serif; 
-                margin: 0; 
-                padding: 20px; 
-                background: white;
-            }
-            .qr-container { 
-                text-align: center; 
-                max-width: 800px; 
-                margin: 0 auto;
-            }
-            .qr-code { 
-                max-width: 400px; 
-                margin: 0 auto 20px; 
-            }
-            .info { 
-                margin: 20px 0; 
-                text-align: center;
-            }
-            .info h2 { 
-                color: #1565c0; 
-                margin-bottom: 10px;
-            }
-            .info p { 
-                margin: 5px 0; 
-                font-size: 14px;
-            }
-            .footer { 
-                margin-top: 30px; 
-                font-size: 12px; 
-                color: #666; 
-                text-align: center;
-            }
-            @media print {
-                .no-print { display: none; }
-                body { padding: 0; }
-                .qr-container { max-width: 100%; }
-            }
+            body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 40px; }
+            .print-card { border: 2px solid #2e7d32; border-radius: 15px; padding: 20px; display: inline-block; }
+            .qr-code { width: 250px; margin: 20px 0; }
+            h2 { color: #1b5e20; margin: 0; }
+            .no-print { margin-top: 20px; }
+            @media print { .no-print { display: none; } }
         </style>
     </head>
     <body>
-        <div class="qr-container">
-            <div class="info">
-                <h2>CECyTE - Credencial Digital</h2>
-                <p><strong>Matr&iacute;cula:</strong> <?php echo htmlspecialchars($alumno['matricula']); ?></p>
-                <p><strong>Alumno:</strong> <?php echo htmlspecialchars($alumno['nombre'] . ' ' . $alumno['apellido_paterno'] . ' ' . ($alumno['apellido_materno'] ?? '')); ?></p>
-                <p><strong>Carrera:</strong> <?php echo htmlspecialchars($alumno['carrera_nombre'] ?? ''); ?></p>
-                <p><strong>Semestre:</strong> <?php echo htmlspecialchars($alumno['semestre'] ?? ''); ?>∞</p>
-                <p><strong>Generado:</strong> <?php echo date('d/m/Y H:i:s'); ?></p>
-            </div>
-            
-            <div class="qr-code">
-                <img src="<?php echo $qrUrl; ?>" alt="C&oacute;digo QR" style="width: 100%;">
-            </div>
-            
-            <div class="footer">
-                <p>Escanea este c&oacute;digo para verificar la informaci&oacute;n del alumno</p>
-                <p>Sistema CECyTE - <?php echo date('Y'); ?></p>
-            </div>
-            
-            <div class="no-print" style="margin-top: 30px;">
-                <button onclick="window.print()" class="btn btn-primary">Imprimir</button>
-                <button onclick="window.close()" class="btn btn-secondary">Cerrar</button>
-            </div>
+        <div class="print-card">
+            <img src="logo_cecyte.png" alt="Logo" style="height: 50px;"> <h2>Credencial Digital</h2>
+            <p><strong><?php echo htmlspecialchars($alumno['nombre'] . ' ' . $alumno['apellido_paterno']); ?></strong></p>
+            <p>Matr√≠cula: <?php echo htmlspecialchars($alumno['matricula']); ?></p>
+            <img src="<?php echo $qrUrl; ?>" class="qr-code">
+            <p style="font-size: 12px; color: #666;">Sistema de Gesti√≥n Acad√©mica CECyTE 2026</p>
         </div>
-        
-        <script>
-            // Auto-imprimir si se solicita
-            window.onload = function() {
-                <?php if (isset($_GET['autoprint']) && $_GET['autoprint'] == '1'): ?>
-                window.print();
-                <?php endif; ?>
-            };
-        </script>
+        <div class="no-print">
+            <button onclick="window.print()" style="padding: 10px 20px; background: #2e7d32; color: white; border: none; border-radius: 5px; cursor: pointer;">Imprimir Ahora</button>
+            <button onclick="window.close()" style="padding: 10px 20px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer;">Cerrar</button>
+        </div>
     </body>
     </html>
     <?php
@@ -171,247 +108,152 @@ if ($tipo == 'print') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Alumno - CECyTE</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>QR Alumno | CECyTE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            background-color: #f8f9fa;
-            padding: 20px;
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --accent: #8bc34a;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
-        .container {
-            max-width: 800px;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #333; }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white; padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        h2 {
-            color: #1565c0;
-            border-bottom: 3px solid #42a5f5;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
+
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        
+        .main-card {
+            background: var(--white); border-radius: 16px; overflow: hidden;
+            box-shadow: var(--shadow); display: flex; flex-wrap: wrap;
         }
-        .qr-section {
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 10px;
-            margin-bottom: 30px;
+
+        /* Lado Izquierdo: Informaci√≥n */
+        .info-side { flex: 1; min-width: 300px; padding: 40px; }
+        
+        /* Lado Derecho: QR */
+        .qr-side { 
+            flex: 1; min-width: 300px; padding: 40px; 
+            background: #f9fbf9; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            border-left: 1px solid #eee;
         }
-        .qr-container {
-            max-width: 300px;
-            margin: 0 auto 20px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+        .student-header h2 { margin: 0; color: var(--primary-dark); font-size: 1.5rem; }
+        .student-header p { color: #666; margin: 5px 0 25px 0; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .info-box { background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid var(--accent); }
+        .info-box label { display: block; font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; }
+        .info-box span { font-size: 0.95rem; font-weight: 600; color: #333; }
+
+        .qr-wrapper {
+            background: white; padding: 15px; border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px;
         }
-        .qr-code {
-            width: 100%;
-            height: auto;
+        .qr-code { width: 220px; height: 220px; }
+
+        /* Botones estilo CECyTE */
+        .btn-group { display: flex; gap: 10px; width: 100%; margin-top: 20px; }
+        .btn-cecyte {
+            flex: 1; text-decoration: none; text-align: center; padding: 12px;
+            border-radius: 8px; font-weight: 600; font-size: 0.85rem; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .student-info {
-            background-color: #e3f2fd;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .info-item {
-            padding: 10px;
-            background: white;
-            border-radius: 5px;
-            border-left: 4px solid #1565c0;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #1565c0;
-            font-size: 0.9rem;
-        }
-        .info-value {
-            color: #212529;
-            font-size: 1rem;
-        }
-        .btn-download {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-        .btn-download:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-        .btn-print {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
-        }
-        .btn-print:hover {
-            background-color: #138496;
-            border-color: #117a8b;
+        .btn-primary { background: var(--primary); color: white; border: none; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { border: 1px solid #ddd; color: #555; background: white; }
+        .btn-outline:hover { background: #eee; }
+
+        @media (max-width: 768px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .qr-side { border-left: none; border-top: 1px solid #eee; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2><i class='bx bx-qr'></i> C&oacute;digo QR del Alumno</h2>
-        
-        <div class="student-info">
-            <h5>
-                <i class='bx bx-user'></i> 
-                <?php echo htmlspecialchars($alumno['nombre'] . ' ' . $alumno['apellido_paterno'] . ' ' . ($alumno['apellido_materno'] ?? '')); ?>
-            </h5>
-            <p class="mb-2"><strong>Matr&iacute;cula:</strong> <?php echo htmlspecialchars($alumno['matricula']); ?></p>
-            <p class="mb-0"><strong>Carrera:</strong> <?php echo htmlspecialchars($alumno['carrera_nombre'] ?? 'No asignada'); ?></p>
-        </div>
-        
-        <div class="qr-section">
-            <h4 class="mb-4">C&oacute;digo QR de Identificaci&oacute;n</h4>
-            
-            <div class="qr-container">
-                <img src="<?php echo $qrUrl; ?>" alt="C&oacute;digo QR" class="qr-code">
+
+<header class="header">
+    <a href="ver_alumno.php?matricula=<?= urlencode($matricula) ?>" style="color:white; text-decoration:none;">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    <h1 style="font-size: 1.2rem; margin:0;">Credencial Digital CECyTE</h1>
+    <div></div>
+</header>
+
+<div class="container">
+    <div class="main-card">
+        <div class="info-side">
+            <div class="student-header">
+                <h2><?= htmlspecialchars($alumno['nombre'] . ' ' . $alumno['apellido_paterno']) ?></h2>
+                <p><i class="fas fa-id-card"></i> Matr√≠cula: <strong><?= htmlspecialchars($alumno['matricula']) ?></strong></p>
             </div>
-            
-            <p class="text-muted mb-4">
-                <i class='bx bx-info-circle'></i>
-                Este c&oacute;digo QR contiene informaci&oacute;n b&aacute;sica del alumno para identificaci&oacute;n r&aacute;pida
-            </p>
-            
-            <div class="row justify-content-center g-3">
-                <div class="col-auto">
-                    <a href="qr_alumno.php?matricula=<?php echo urlencode($matricula); ?>&tipo=download" 
-                       class="btn btn-download">
-                        <i class='bx bx-download'></i> Descargar QR
-                    </a>
-                </div>
-                <div class="col-auto">
-                    <a href="qr_alumno.php?matricula=<?php echo urlencode($matricula); ?>&tipo=print" 
-                       target="_blank"
-                       class="btn btn-print">
-                        <i class='bx bx-printer'></i> Imprimir QR
-                    </a>
-                </div>
-                <div class="col-auto">
-                    <a href="qr_alumno.php?matricula=<?php echo urlencode($matricula); ?>&tipo=print&autoprint=1" 
-                       target="_blank"
-                       class="btn btn-primary">
-                        <i class='bx bx-printer'></i> Imprimir Autom&aacute;tico
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="mb-4">
-            <h5><i class='bx bx-info-circle'></i> Informaci&oacute;n Contenida en el QR</h5>
+
             <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Matr&iacute;cula</div>
-                    <div class="info-value"><?php echo htmlspecialchars($alumno['matricula']); ?></div>
+                <div class="info-box">
+                    <label>Carrera</label>
+                    <span><?= htmlspecialchars($alumno['carrera_nombre'] ?? 'No asignada') ?></span>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Nombre Completo</div>
-                    <div class="info-value"><?php echo htmlspecialchars($alumno['nombre'] . ' ' . $alumno['apellido_paterno'] . ' ' . ($alumno['apellido_materno'] ?? '')); ?></div>
+                <div class="info-box">
+                    <label>Grupo</label>
+                    <span><?= htmlspecialchars($alumno['grupo_nombre'] ?? 'Sin grupo') ?></span>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">CURP</div>
-                    <div class="info-value"><?php echo htmlspecialchars($alumno['curp']); ?></div>
+                <div class="info-box">
+                    <label>Semestre</label>
+                    <span><?= htmlspecialchars($alumno['semestre'] ?? '0') ?>¬∞</span>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Carrera</div>
-                    <div class="info-value"><?php echo htmlspecialchars($alumno['carrera_nombre'] ?? 'No asignada'); ?></div>
+                <div class="info-box">
+                    <label>Estatus</label>
+                    <span style="color: <?= (strtolower($alumno['estatus_nombre']) == 'activo') ? '#2e7d32' : '#c62828' ?>;">
+                        <?= htmlspecialchars($alumno['estatus_nombre'] ?? 'Activo') ?>
+                    </span>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Semestre</div>
-                    <div class="info-value"><?php echo htmlspecialchars($alumno['semestre'] ?? ''); ?>∞</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Grupo</div>
-                    <div class="info-value"><?php echo htmlspecialchars($alumno['grupo_nombre'] ?? 'No asignado'); ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Estatus</div>
-                    <div class="info-value"><?php echo htmlspecialchars($alumno['estatus_nombre'] ?? 'Activo'); ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Fecha de Generaci&oacute;n</div>
-                    <div class="info-value"><?php echo date('d/m/Y H:i:s'); ?></div>
+                <div class="info-box" style="grid-column: 1 / -1;">
+                    <label>CURP</label>
+                    <span><?= htmlspecialchars($alumno['curp']) ?></span>
                 </div>
             </div>
+
+            <div style="margin-top: 30px;">
+                <a href="editar_alumnos.php?matricula=<?= urlencode($matricula) ?>" class="btn-cecyte btn-outline" style="width: 100%; box-sizing: border-box;">
+                    <i class="fas fa-edit"></i> Editar Datos del Alumno
+                </a>
+            </div>
         </div>
-        
-        <div class="alert alert-info">
-            <h6><i class='bx bx-bulb'></i> Usos del C&oacute;digo QR</h6>
-            <ul class="mb-0">
-                <li><strong>Identificaci&oacute;n r&aacute;pida:</strong> Escanear para verificar datos del alumno</li>
-                <li><strong>Control de acceso:</strong> Validar entrada a instalaciones</li>
-                <li><strong>Registro de asistencia:</strong> Marcar entrada/salida con esc&aacute;ner</li>
-                <li><strong>Pr&eacute;stamo de material:</strong> Registrar pr&eacute;stamos en biblioteca</li>
-                <li><strong>Eventos escolares:</strong> Control de acceso a actividades</li>
-            </ul>
-        </div>
-        
-        <div class="d-flex justify-content-between mt-4">
-            <a href="ver_alumno.php?matricula=<?php echo urlencode($matricula); ?>" class="btn btn-secondary">
-                <i class='bx bx-arrow-back'></i> Volver al Alumno
+
+        <div class="qr-side">
+            <div class="qr-wrapper">
+                <img src="<?= $qrUrl ?>" alt="QR Alumno" class="qr-code">
+            </div>
+            
+            <p style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Escanea este c√≥digo para registro de asistencia o acceso.
+            </p>
+
+            <div class="btn-group">
+                <a href="qr_alumno.php?matricula=<?= urlencode($matricula) ?>&tipo=download" class="btn-cecyte btn-primary">
+                    <i class="fas fa-download"></i> Descargar
+                </a>
+                <a href="qr_alumno.php?matricula=<?= urlencode($matricula) ?>&tipo=print" target="_blank" class="btn-cecyte btn-outline">
+                    <i class="fas fa-print"></i> Imprimir
+                </a>
+            </div>
+            
+            <a href="qr_alumno.php?matricula=<?= urlencode($matricula) ?>&tipo=print&autoprint=1" target="_blank" 
+               style="margin-top: 15px; font-size: 0.75rem; color: var(--primary); text-decoration: none; font-weight: 600;">
+                <i class="fas fa-magic"></i> Impresi√≥n R√°pida
             </a>
-            <div>
-                <a href="editar_alumnos.php?matricula=<?php echo urlencode($matricula); ?>" class="btn btn-primary me-2">
-                    <i class='bx bx-edit'></i> Editar Alumno
-                </a>
-                <a href="lista_alumnos.php" class="btn btn-outline-secondary">
-                    <i class='bx bx-list-ul'></i> Lista de Alumnos
-                </a>
-            </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // FunciÛn para copiar datos al portapapeles
-        function copiarDatosQR() {
-            const datos = <?php echo json_encode($datosQR, JSON_UNESCAPED_UNICODE); ?>;
-            const texto = JSON.stringify(datos, null, 2);
-            
-            navigator.clipboard.writeText(texto).then(() => {
-                alert('Datos del QR copiados al portapapeles');
-            }).catch(err => {
-                console.error('Error al copiar: ', err);
-            });
-        }
-        
-        // Agregar botÛn para copiar datos
-        const qrSection = document.querySelector('.qr-section');
-        if (qrSection) {
-            const copyButton = document.createElement('button');
-            copyButton.className = 'btn btn-outline-primary mt-3';
-            copyButton.innerHTML = '<i class="bx bx-copy"></i> Copiar Datos QR';
-            copyButton.onclick = copiarDatosQR;
-            qrSection.querySelector('.row').appendChild(copyButton);
-        }
-        
-        // Preview del QR en diferentes tamaÒos
-        function cambiarTamanoQR(tamano) {
-            const qrImg = document.querySelector('.qr-code');
-            const nuevaUrl = '<?php echo str_replace("300x300", "SIZE", $qrUrl); ?>'.replace('SIZE', tamano);
-            qrImg.src = nuevaUrl;
-        }
-        
-        // Agregar controles de tamaÒo
-        const qrContainer = document.querySelector('.qr-container');
-        if (qrContainer) {
-            const sizeControls = document.createElement('div');
-            sizeControls.className = 'btn-group btn-group-sm mt-3';
-            sizeControls.innerHTML = `
-                <button class="btn btn-outline-secondary" onclick="cambiarTamanoQR('200x200')">Pequeno</button>
-                <button class="btn btn-outline-secondary active" onclick="cambiarTamanoQR('300x300')">Mediano</button>
-                <button class="btn btn-outline-secondary" onclick="cambiarTamanoQR('400x400')">Grande</button>
-            `;
-            qrContainer.appendChild(sizeControls);
-        }
-    </script>
 </body>
 </html>

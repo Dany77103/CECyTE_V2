@@ -52,8 +52,8 @@ if ($filtro_activo !== '') {
 
 if ($filtro_busqueda) {
     $sql .= " AND (g.nombre LIKE :busqueda OR 
-                   g.descripcion LIKE :busqueda OR
-                   c.nombre LIKE :busqueda)";
+                    g.descripcion LIKE :busqueda OR
+                    c.nombre LIKE :busqueda)";
     $params['busqueda'] = "%$filtro_busqueda%";
 }
 
@@ -76,7 +76,7 @@ if ($filtro_carrera) $sql_total .= " AND g.id_carrera = " . (int)$filtro_carrera
 if ($filtro_turno) $sql_total .= " AND g.turno = '" . $con->quote($filtro_turno) . "'";
 if ($filtro_activo !== '') $sql_total .= " AND g.activo = " . (int)$filtro_activo;
 if ($filtro_busqueda) $sql_total .= " AND (g.nombre LIKE '%" . $con->quote($filtro_busqueda) . "%' OR 
-                                             g.descripcion LIKE '%" . $con->quote($filtro_busqueda) . "%')";
+                                         g.descripcion LIKE '%" . $con->quote($filtro_busqueda) . "%')";
 
 $total_grupos = $con->query($sql_total)->fetchColumn();
 $total_paginas = ceil($total_grupos / $limit);
@@ -128,7 +128,6 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
 
         .container { max-width: 1400px; margin: 0 auto; }
 
-        /* Header Modernizado */
         .header {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
             color: var(--white);
@@ -157,7 +156,6 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
         }
         .nav-links a:hover { background: var(--accent); color: var(--primary-dark); transform: translateY(-2px); }
 
-        /* Cards Estilizadas */
         .card {
             background: var(--white);
             border-radius: 16px;
@@ -177,7 +175,6 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
             gap: 10px;
         }
 
-        /* Estadísticas Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -196,7 +193,6 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
         .stat-val { font-size: 28px; font-weight: 800; color: var(--primary); }
         .stat-lab { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; font-weight: 600; }
 
-        /* Formulario de Filtros */
         .filter-form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -218,7 +214,6 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
 
         select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1); }
 
-        /* Botones Personalizados */
         .btn {
             padding: 12px 20px;
             border-radius: 10px;
@@ -241,7 +236,6 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
 
         .btn-clear { background: #f0f0f0; color: #666; }
 
-        /* Tabla Refinada */
         .table-container { overflow-x: auto; margin-top: 10px; }
         
         .custom-table {
@@ -277,7 +271,6 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
             transform: translateY(-2px);
         }
 
-        /* Badges */
         .badge-status {
             padding: 5px 12px;
             border-radius: 20px;
@@ -291,11 +284,9 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
         .group-name { font-weight: 700; color: var(--primary-dark); font-size: 15px; }
         .career-name { color: #666; font-size: 13px; margin-top: 4px; }
 
-        /* Mini Stats en Fila */
         .mini-stats { display: flex; gap: 10px; margin-top: 8px; }
         .m-item { font-size: 11px; background: #f4f7f6; padding: 2px 8px; border-radius: 4px; color: #555; }
 
-        /* Acciones */
         .actions-cell { display: flex; gap: 5px; }
         .action-btn {
             width: 35px; height: 35px;
@@ -304,12 +295,11 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
             color: white;
             transition: 0.2s;
         }
-        .edit { background: #4caf50; }
-        .view { background: #2196f3; }
-        .assign { background: #ff9800; }
+        .edit { background: var(--primary); }
+        .view { background: var(--primary-light); }
+        .assign { background: var(--accent); color: var(--primary-dark); }
         .action-btn:hover { opacity: 0.8; transform: translateY(-2px); }
 
-        /* Paginación */
         .pagination {
             display: flex; justify-content: center; gap: 8px; margin-top: 30px;
         }
@@ -349,15 +339,15 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
             <div class="stat-val"><?php echo $total_grupos_activos + $total_grupos_inactivos; ?></div>
             <div class="stat-lab">Grupos Registrados</div>
         </div>
-        <div class="stat-box" style="border-left-color: #8bc34a;">
+        <div class="stat-box" style="border-left-color: var(--accent);">
             <div class="stat-val"><?php echo $total_grupos_activos; ?></div>
             <div class="stat-lab">Grupos Activos</div>
         </div>
-        <div class="stat-box" style="border-left-color: #2196f3;">
+        <div class="stat-box" style="border-left-color: var(--primary-light);">
             <div class="stat-val"><?php echo $total_alumnos_grupos; ?></div>
             <div class="stat-lab">Alumnos Totales</div>
         </div>
-        <div class="stat-box" style="border-left-color: #ff9800;">
+        <div class="stat-box" style="border-left-color: var(--primary-dark);">
             <div class="stat-val"><?php echo $total_maestros_grupos; ?></div>
             <div class="stat-lab">Maestros en Horario</div>
         </div>
@@ -441,8 +431,8 @@ $total_maestros_grupos = $con->query("SELECT COUNT(DISTINCT hm.id_maestro) FROM 
                             <div class="actions-cell">
                                 <a href="ver_grupo.php?id=<?php echo $g['id_grupo']; ?>" class="action-btn view" title="Ver"><i class="fas fa-eye"></i></a>
                                 <a href="editar_grupo.php?id=<?php echo $g['id_grupo']; ?>" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
-                                <a href="asignar_alumnos_grupo.php?id_grupo=<?php echo $g['id_grupo']; ?>" class="action-btn assign" title="Alumnos" style="background:#673ab7;"><i class="fas fa-user-plus"></i></a>
-                                <a href="horario_grupo.php?id=<?php echo $g['id_grupo']; ?>" class="action-btn view" title="Horario" style="background:#009688;"><i class="fas fa-calendar-alt"></i></a>
+                                <a href="asignar_alumnos_grupo.php?id_grupo=<?php echo $g['id_grupo']; ?>" class="action-btn assign" title="Alumnos"><i class="fas fa-user-plus"></i></a>
+                                <a href="horario_grupo.php?id=<?php echo $g['id_grupo']; ?>" class="action-btn edit" title="Horario"><i class="fas fa-calendar-alt"></i></a>
                             </div>
                         </td>
                     </tr>

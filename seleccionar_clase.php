@@ -27,7 +27,6 @@ if ($es_admin) {
 $id_maestro_seleccionado = $_GET['maestro_id'] ?? null;
 
 if (!$es_admin) {
-    // Si es maestro, usamos su ID de sesión
     $id_maestro = $_SESSION['maestro_id']; 
     $sql = "SELECT DISTINCT h.id_materia, h.id_grupo, m.materia, g.nombre as grupo_nombre
             FROM horarios_maestros h
@@ -38,7 +37,6 @@ if (!$es_admin) {
     $stmt = $con->prepare($sql);
     $stmt->execute(['id_maestro' => $id_maestro]);
 } else {
-    // Si es admin, puede filtrar o ver todas
     $query = "SELECT DISTINCT h.id_materia, h.id_grupo, m.materia, g.nombre as grupo_nombre,
                      CONCAT(ma.nombre, ' ', ma.apellido_paterno) as nombre_maestro
               FROM horarios_maestros h
@@ -81,7 +79,6 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #333; }
         
-        /* Header */
         .header {
             background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             color: white; padding: 1rem 2rem;
@@ -92,16 +89,41 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .header h1 { font-size: 1.4rem; margin: 0; }
 
-        /* Grid System */
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         
+        /* Nuevo estilo para el botón superior */
+        .top-actions {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .btn-qr-global {
+            background: #34495e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: 0.3s;
+        }
+
+        .btn-qr-global:hover {
+            background: #2c3e50;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
         .clases-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
         }
 
-        /* Tarjetas de Clase */
         .card-clase {
             background: var(--white); border-radius: 16px; overflow: hidden;
             box-shadow: var(--shadow); transition: 0.3s;
@@ -109,7 +131,6 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .card-clase:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-
         .card-header { background: #f9fbf9; padding: 20px; border-bottom: 1px solid #eee; }
         .card-header h3 { margin: 0; color: var(--primary-dark); font-size: 1.1rem; }
 
@@ -120,10 +141,8 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .card-body { padding: 20px; flex-grow: 1; font-size: 0.95rem; color: #666; }
         .info-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-
         .card-footer { padding: 15px; background: #fdfdfd; display: grid; gap: 8px; }
 
-        /* Botones */
         .btn-action {
             text-decoration: none; text-align: center; padding: 10px;
             border-radius: 8px; font-weight: 600; font-size: 0.85rem;
@@ -131,14 +150,12 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         .btn-main { background: var(--primary); color: white; }
         .btn-main:hover { background: var(--primary-dark); }
-        
         .btn-outline { border: 1px solid #ddd; color: #555; }
         .btn-outline:hover { background: #eee; }
 
-        /* Filtro Admin */
         .filter-section {
             background: white; padding: 20px; border-radius: 12px;
-            margin-bottom: 30px; box-shadow: var(--shadow);
+            margin-bottom: 20px; box-shadow: var(--shadow);
             display: flex; gap: 15px; align-items: center;
         }
 
@@ -146,6 +163,7 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         @media (max-width: 600px) {
             .filter-section { flex-direction: column; align-items: stretch; }
+            .btn-qr-global { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -178,6 +196,12 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </form>
     </div>
     <?php endif; ?>
+
+    <div class="top-actions">
+        <a href="asistencia_qr_general.php" class="btn-qr-global">
+            <i class="fas fa-qrcode"></i> Asistencia con QR
+        </a>
+    </div>
 
     <div class="clases-grid">
         <?php if (empty($clases)): ?>
@@ -222,7 +246,6 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-    // Animación de entrada
     document.querySelectorAll('.card-clase').forEach((card, i) => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(15px)';
