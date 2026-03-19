@@ -89,136 +89,271 @@ $especialidades = $con->query("SELECT DISTINCT especialidad FROM maestros WHERE 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Maestros - CECYTE</title>
+    <title>Gestión de Maestros | CECyTE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --verde-oscuro-1: #1a5330;
-            --verde-oscuro-2: #2e7d32;
-            --verde-medio: #4caf50;
-            --verde-claro: #8bc34a;
-            --verde-muy-claro: #f1f8e9;
-            --blanco: #ffffff;
-            --sombra: rgba(0, 0, 0, 0.1);
+            --primary: #1a5330;
+            --primary-light: #2e7d32;
+            --secondary: #6c757d;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); min-height: 100vh; padding: 20px; color: #333; }
+        body { 
+            background-color: var(--bg); 
+            font-family: 'Inter', sans-serif; 
+            color: #333;
+            padding-top: 90px;
+        }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        /* --- NAVBAR FIJA --- */
+        .navbar {
+            background: var(--white);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
 
-        .header { background: var(--blanco); padding: 20px 30px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px var(--sombra); display: flex; justify-content: space-between; align-items: center; border-left: 8px solid var(--verde-oscuro-1); }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
 
-        .header h1 { color: var(--verde-oscuro-1); font-size: 24px; display: flex; align-items: center; gap: 12px; }
+        .navbar-brand img { height: 45px; width: auto; }
 
-        .nav-links { display: flex; gap: 10px; }
+        .navbar-brand span {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
 
-        .nav-links a { text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.3s; background: var(--verde-muy-claro); color: var(--verde-oscuro-2); border: 1px solid var(--verde-claro); }
+        .nav-actions { display: flex; gap: 10px; }
 
-        .nav-links a:hover { background: var(--verde-oscuro-2); color: white; transform: translateY(-2px); }
+        /* --- CONTENEDOR --- */
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 20px 40px; }
 
-        .card { background: var(--blanco); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px var(--sombra); }
+        .card { 
+            background: var(--white); 
+            border-radius: 20px; 
+            padding: 25px; 
+            margin-bottom: 25px; 
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
 
-        .card h2 { color: var(--verde-oscuro-2); font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--verde-muy-claro); padding-bottom: 10px; }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end; }
+        .card-header h2 { 
+            font-size: 1.25rem; 
+            color: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
 
-        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 700; color: var(--verde-oscuro-1); }
+        /* --- FORMULARIO FILTROS --- */
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+            align-items: flex-end; 
+        }
 
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            color: var(--secondary); 
+        }
 
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; font-size: 14px; text-decoration: none; }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 8px; 
+            font-size: 0.9rem;
+            outline: none;
+            transition: border 0.3s;
+        }
 
-        .btn-primary { background: var(--verde-oscuro-2); color: white; }
-        .btn-secondary { background: #757575; color: white; }
+        .form-group input:focus { border-color: var(--primary-light); }
 
-        .table-container { overflow-x: auto; }
+        /* --- TABLA --- */
+        .table-responsive { overflow-x: auto; }
+        .tabla { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .tabla thead { background: #f8f9fa; }
+        .tabla th { 
+            text-align: left; 
+            padding: 15px; 
+            color: var(--secondary); 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            border-bottom: 2px solid #eee;
+        }
+        .tabla td { padding: 15px; border-bottom: 1px solid #f1f1f1; font-size: 0.9rem; }
+        .tabla tr:hover { background: #fafafa; }
 
-        .tabla { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        /* --- BOTONES --- */
+        .btn { 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: var(--transition); 
+            text-decoration: none; 
+        }
 
-        .tabla thead { background: var(--verde-oscuro-1); color: white; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
+        .btn-secondary { background: #e9ecef; color: var(--secondary); }
+        .btn-secondary:hover { background: #dee2e6; }
+        
+        .btn-action { 
+            width: 35px; 
+            height: 35px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 8px; 
+            color: white; 
+            margin-right: 5px; 
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .btn-action:hover { transform: scale(1.1); }
 
-        .tabla th, .tabla td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        /* --- BADGES --- */
+        .estatus-badge { 
+            padding: 5px 12px; 
+            border-radius: 6px; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+        }
+        .estatus-activo { background: #d4edda; color: #155724; }
+        .estatus-inactivo { background: #f8d7da; color: #721c24; }
 
-        .estatus-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .estatus-activo { background: #c8e6c9; color: #2e7d32; }
-        .estatus-inactivo { background: #ffcdd2; color: #c62828; }
-
-        .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; color: white; margin-right: 3px; }
+        @media (max-width: 768px) {
+            .navbar-brand span { display: none; }
+            .card-header { flex-direction: column; gap: 15px; align-items: flex-start; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1><i class="fas fa-chalkboard-teacher"></i> CECYTE - Gestión de Maestros</h1>
-        <div class="nav-links">
-            <a href="main.php"><i class="fas fa-home"></i> Inicio</a>
-            <a href="nuevo_maestro2.php"><i class="fas fa-plus"></i> Nuevo Maestro</a>
-            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Salir</a>
+    <nav class="navbar">
+        <a href="main.php" class="navbar-brand">
+            <img src="img/logo_cecyte.jpg" alt="CECyTE Logo">
+            <span>CECyTE Santa Catarina</span>
+        </a>
+        <div class="nav-actions">
+            <a href="main.php" class="btn btn-secondary"><i class="fas fa-home"></i></a>
+            <a href="logout.php" class="btn btn-secondary" style="color: #dc3545;"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-filter"></i> Filtros de Búsqueda</h2>
+                <a href="nuevo_maestro2.php" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Maestro</a>
+            </div>
+            <form method="GET" class="form-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Búsqueda General</label>
+                    <input type="text" name="busqueda" placeholder="Nombre, número de empleado o correo..." value="<?php echo htmlspecialchars($filtro_busqueda); ?>">
+                </div>
+                <div class="form-group">
+                    <label>Especialidad</label>
+                    <select name="especialidad">
+                        <option value="">Todas las especialidades</option>
+                        <?php foreach ($especialidades as $esp): ?>
+                            <option value="<?php echo $esp['especialidad']; ?>" <?php echo ($filtro_especialidad == $esp['especialidad']) ? 'selected' : ''; ?>>
+                                <?php echo $esp['especialidad']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;"><i class="fas fa-search"></i> Buscar</button>
+                    <a href="gestion_maestros.php" class="btn btn-secondary" title="Limpiar Filtros"><i class="fas fa-sync"></i></a>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-list"></i> Listado de Docentes</h2>
+                <span style="font-size: 0.8rem; color: var(--secondary); font-weight: 500;">Mostrando <?php echo count($maestros); ?> maestros</span>
+            </div>
+            <div class="table-responsive">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>N° Empleado</th>
+                            <th>Nombre Completo</th>
+                            <th>Especialidad</th>
+                            <th>Estado</th>
+                            <th style="text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($maestros)): ?>
+                            <tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--secondary);">No se encontraron maestros con los filtros seleccionados.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($maestros as $m): ?>
+                            <tr>
+                                <td style="font-weight: 700; color: var(--primary);">#<?php echo $m['numEmpleado']; ?></td>
+                                <td style="font-weight: 500;"><?php echo htmlspecialchars($m['nombre_completo']); ?></td>
+                                <td><span style="color: var(--secondary);"><?php echo $m['especialidad'] ?: 'No asignada'; ?></span></td>
+                                <td>
+                                    <span class="estatus-badge <?php echo ($m['activo'] == 'Activo') ? 'estatus-activo' : 'estatus-inactivo'; ?>">
+                                        <?php echo $m['activo']; ?>
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="ver_maestro2.php?numEmpleado=<?php echo $m['numEmpleado']; ?>" class="btn-action" style="background: #3b82f6;" title="Ver Detalles"><i class="fas fa-eye"></i></a>
+                                    <a href="editar_maestro2.php?numEmpleado=<?php echo $m['numEmpleado']; ?>" class="btn-action" style="background: #10b981;" title="Editar"><i class="fas fa-edit"></i></a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <div class="card">
-        <h2><i class="fas fa-search"></i> Filtros y Búsqueda</h2>
-        <form method="GET" class="form-grid">
-            <div class="form-group" style="grid-column: span 2;">
-                <label>Búsqueda General</label>
-                <input type="text" name="busqueda" placeholder="Nombre, número de empleado..." value="<?php echo htmlspecialchars($filtro_busqueda); ?>">
-            </div>
-            <div class="form-group">
-                <label>Especialidad</label>
-                <select name="especialidad">
-                    <option value="">Todas</option>
-                    <?php foreach ($especialidades as $esp): ?>
-                        <option value="<?php echo $esp['especialidad']; ?>" <?php echo ($filtro_especialidad == $esp['especialidad']) ? 'selected' : ''; ?>>
-                            <?php echo $esp['especialidad']; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filtrar</button>
-                <a href="gestion_maestros.php" class="btn btn-secondary"><i class="fas fa-sync"></i></a>
-            </div>
-        </form>
-    </div>
-
-    <div class="card">
-        <div class="table-container">
-            <table class="tabla">
-                <thead>
-                    <tr>
-                        <th>ID / Empleado</th>
-                        <th>Nombre del Docente</th>
-                        <th>Especialidad</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($maestros as $m): ?>
-                    <tr>
-                        <td><strong>#<?php echo $m['numEmpleado']; ?></strong></td>
-                        <td><?php echo htmlspecialchars($m['nombre_completo']); ?></td>
-                        <td><?php echo $m['especialidad'] ?: 'N/A'; ?></td>
-                        <td>
-                            <span class="estatus-badge <?php echo ($m['activo'] == 'Activo') ? 'estatus-activo' : 'estatus-inactivo'; ?>">
-                                <?php echo $m['activo']; ?>
-                            </span>
-                        </td>
-                        <td>
-                            <a href="ver_maestro2.php?numEmpleado=<?php echo $m['numEmpleado']; ?>" class="btn-action" style="background: #2196f3;" title="Ver"><i class="fas fa-eye"></i></a>
-                            <a href="editar_maestro2.php?numEmpleado=<?php echo $m['numEmpleado']; ?>" class="btn-action" style="background: #4caf50;" title="Editar"><i class="fas fa-edit"></i></a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 
 </body>
 </html>

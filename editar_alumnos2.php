@@ -1,6 +1,6 @@
 <?php
 // editar_alumnos.php
-$debug = false; // Cambia a false en producción
+$debug = false; // Cambia a false en producciï¿½n
 session_start();
 
 require_once 'conexion.php';
@@ -19,7 +19,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-// Determinar si es edición o nuevo alumno
+// Determinar si es ediciï¿½n o nuevo alumno
 $matricula = isset($_GET['matricula']) ? trim($_GET['matricula']) : null;
 $modoEdicion = $matricula !== null;
 
@@ -106,7 +106,7 @@ $errores = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validar CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $errores[] = "Token de seguridad inválido. Por favor, recarga la página.";
+        $errores[] = "Token de seguridad invï¿½lido. Por favor, recarga la pï¿½gina.";
     } else {
         // Recoger datos del formulario
         $datos = [
@@ -130,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'telefono_celular' => trim($_POST['telefono_celular'] ?? ''),
             'correo_personal' => trim($_POST['correo_personal'] ?? ''),
             'correo_institucional' => trim($_POST['correo_institucional'] ?? ''),
+            'correo_tutor' => trim($_POST['correo_tutor'] ?? ''),
             'fecha_ingreso' => trim($_POST['fecha_ingreso'] ?? ''),
             'id_carrera' => $_POST['id_carrera'] ?? '',
             'id_semestre' => $_POST['id_semestre'] ?? '',
@@ -155,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'telefono_madre' => trim($_POST['telefono_madre'] ?? '')
         ];
         
-        // Validaciones básicas
+        // Validaciones bï¿½sicas
         $camposRequeridos = ['matricula', 'nombre', 'apellido_paterno', 'fecha_nacimiento', 'curp', 'id_genero', 'fecha_ingreso', 'id_semestre'];
         foreach ($camposRequeridos as $campo) {
             if (empty($datos[$campo])) {
@@ -165,52 +166,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Validar CURP
         if (!empty($datos['curp']) && !preg_match('/^[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9A-Z]{2}$/', $datos['curp'])) {
-            $errores[] = "El CURP no tiene un formato válido.";
+            $errores[] = "El CURP no tiene un formato vï¿½lido.";
         }
         
         // Validar RFC
         if (!empty($datos['rfc']) && !preg_match('/^[A-Z&N]{3,4}[0-9]{6}[A-Z0-9]{3}$/', $datos['rfc'])) {
-            $errores[] = "El RFC no tiene un formato válido.";
+            $errores[] = "El RFC no tiene un formato vï¿½lido.";
         }
         
         // Validar correos
         if (!empty($datos['correo_personal']) && !filter_var($datos['correo_personal'], FILTER_VALIDATE_EMAIL)) {
-            $errores[] = "El correo personal no es válido.";
+            $errores[] = "El correo personal no es vï¿½lido.";
         }
         
         if (!empty($datos['correo_institucional']) && !filter_var($datos['correo_institucional'], FILTER_VALIDATE_EMAIL)) {
-            $errores[] = "El correo institucional no es válido.";
+            $errores[] = "El correo institucional no es vï¿½lido.";
         }
         
         // Validar fechas
         if (!empty($datos['fecha_nacimiento'])) {
             $fecha = DateTime::createFromFormat('Y-m-d', $datos['fecha_nacimiento']);
             if (!$fecha || $fecha->format('Y-m-d') !== $datos['fecha_nacimiento']) {
-                $errores[] = "La fecha de nacimiento no es válida.";
+                $errores[] = "La fecha de nacimiento no es vï¿½lida.";
             }
         }
         
         if (!empty($datos['fecha_ingreso'])) {
             $fecha = DateTime::createFromFormat('Y-m-d', $datos['fecha_ingreso']);
             if (!$fecha || $fecha->format('Y-m-d') !== $datos['fecha_ingreso']) {
-                $errores[] = "La fecha de ingreso no es válida.";
+                $errores[] = "La fecha de ingreso no es vï¿½lida.";
             }
         }
         
-        // Validaciones numéricas
+        // Validaciones numï¿½ricas
         if (!empty($datos['codigo_postal']) && !is_numeric($datos['codigo_postal'])) {
-            $errores[] = "El código postal debe ser un número.";
+            $errores[] = "El cï¿½digo postal debe ser un nï¿½mero.";
         }
         
         if (!empty($datos['promedio_secundaria']) && !is_numeric($datos['promedio_secundaria'])) {
-            $errores[] = "El promedio de secundaria debe ser un número.";
+            $errores[] = "El promedio de secundaria debe ser un nï¿½mero.";
         }
         
         if (!empty($datos['porcentaje_beca']) && !is_numeric($datos['porcentaje_beca'])) {
-            $errores[] = "El porcentaje de beca debe ser un número.";
+            $errores[] = "El porcentaje de beca debe ser un nï¿½mero.";
         }
         
-        // Verificar matrícula única (solo para nuevo alumno)
+        // Verificar matrï¿½cula ï¿½nica (solo para nuevo alumno)
         if (!$modoEdicion) {
             try {
                 $sql_check = "SELECT COUNT(*) as count FROM alumnos WHERE matricula = :matricula";
@@ -220,10 +221,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $result = $stmt_check->fetch(PDO::FETCH_ASSOC);
                 
                 if ($result['count'] > 0) {
-                    $errores[] = "La matrícula ya existe. Por favor, use otra.";
+                    $errores[] = "La matrï¿½cula ya existe. Por favor, use otra.";
                 }
             } catch (PDOException $e) {
-                $errores[] = "Error al verificar la matrícula: " . $e->getMessage();
+                $errores[] = "Error al verificar la matrï¿½cula: " . $e->getMessage();
             }
         }
         
@@ -251,6 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             telefono_celular = :telefono_celular,
                             correo_personal = :correo_personal,
                             correo_institucional = :correo_institucional,
+                            correo_tutor = :correo_tutor,
                             fecha_ingreso = :fecha_ingreso,
                             id_carrera = :id_carrera,
                             id_semestre = :id_semestre,
@@ -279,11 +281,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     $stmt = $con->prepare($sql);
                     
-                    // Vincular todos los parámetros
+                    // Vincular todos los parï¿½metros
                     foreach ($datos as $key => $value) {
                         if ($key == 'matricula') continue;
                         
-                        // Determinar el tipo de parámetro
+                        // Determinar el tipo de parï¿½metro
                         $paramType = PDO::PARAM_STR;
                         if (in_array($key, ['id_carrera', 'id_semestre', 'id_grupo', 'id_estatus', 'id_genero', 
                                              'id_nacionalidad', 'id_estado', 'id_ciudad', 'id_discapacidad', 
@@ -298,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $stmt->bindValue(':' . $key, $value, $paramType);
                     }
                     
-                    // Vincular la matrícula para el WHERE
+                    // Vincular la matrï¿½cula para el WHERE
                     $stmt->bindValue(':matricula', $matricula, PDO::PARAM_STR);
                     
                     // Ejecutar la consulta
@@ -327,7 +329,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 $errores[] = "Error al recuperar datos actualizados del alumno.";
                             }
                         } else {
-                            $errores[] = "La actualización no afectó a ninguna fila. Verifique que los datos sean diferentes o que la matrícula exista.";
+                            $errores[] = "La actualizaciï¿½n no afectï¿½ a ninguna fila. Verifique que los datos sean diferentes o que la matrï¿½cula exista.";
                             
                             // Verificar si el alumno existe
                             $sql_check = "SELECT COUNT(*) as count FROM alumnos WHERE matricula = :matricula";
@@ -337,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $checkResult = $stmt_check->fetch(PDO::FETCH_ASSOC);
                             
                             if ($checkResult['count'] == 0) {
-                                $errores[] = "El alumno con matrícula $matricula no existe en la base de datos.";
+                                $errores[] = "El alumno con matrï¿½cula $matricula no existe en la base de datos.";
                             } else {
                                 $errores[] = "El alumno existe pero no hubo cambios en los datos.";
                             }
@@ -362,7 +364,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             :matricula, :nombre, :apellido_paterno, :apellido_materno, :fecha_nacimiento,
                             :curp, :rfc, :id_genero, :estado_civil, :id_nacionalidad, :lugar_nacimiento,
                             :direccion, :colonia, :codigo_postal, :id_ciudad, :id_estado,
-                            :telefono_casa, :telefono_celular, :correo_personal, :correo_institucional,
+                            :telefono_casa, :telefono_celular, :correo_personal, :correo_institucional, :correo_tutor,
                             :fecha_ingreso, :id_carrera, :id_semestre, :id_grupo, :turno, :id_estatus,
                             :observaciones, :tipo_sangre, :alergias, :enfermedades_cronicas,
                             :seguro_medico, :escuela_procedencia, :promedio_secundaria, :beca, :porcentaje_beca,
@@ -377,7 +379,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     if ($stmt->execute()) {
                         $matricula = $datos['matricula']; // Para redirigir o mostrar mensaje
-                        $mensajes[] = "Alumno registrado correctamente. Matrícula: " . $datos['matricula'];
+                        $mensajes[] = "Alumno registrado correctamente. Matrï¿½cula: " . $datos['matricula'];
                         
                         // Obtener datos del nuevo alumno
                         $stmt = $con->prepare("SELECT a.*, c.nombre as carrera_nombre, g.nombre as grupo_nombre 
@@ -716,7 +718,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <input type="text" class="form-control" name="curp" required maxlength="18"
                                                value="<?php echo $alumno ? htmlspecialchars($alumno['curp']) : ''; ?>"
                                                pattern="[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9A-Z]{2}"
-                                               title="Formato de CURP válido: 4 letras, 6 números, 6 letras, 2 caracteres">
+                                               title="Formato de CURP vï¿½lido: 4 letras, 6 nï¿½meros, 6 letras, 2 caracteres">
                                     </div>
                                     
                                     <div class="mb-3">
@@ -724,7 +726,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <input type="text" class="form-control" name="rfc" maxlength="13"
                                                value="<?php echo $alumno ? htmlspecialchars($alumno['rfc']) : ''; ?>"
                                                pattern="[A-Z&N]{3,4}[0-9]{6}[A-Z0-9]{3}"
-                                               title="Formato de RFC válido">
+                                               title="Formato de RFC vï¿½lido">
                                     </div>
                                     
                                     <div class="mb-3">
@@ -849,7 +851,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
                         
-                        <!-- Pestana 2: Datos Académicos -->
+                        <!-- Pestana 2: Datos Acadï¿½micos -->
                         <div class="tab-pane fade" id="academicos" role="tabpanel">
                             <div class="row">
                                 <div class="col-md-6">
@@ -1015,10 +1017,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <label class="form-label">Correo Personal</label>
-                                        <input type="email" class="form-control" name="correo_personal"
-                                               value="<?php echo $alumno ? htmlspecialchars($alumno['correo_personal']) : ''; ?>">
-                                    </div>
+    <label class="form-label">Correo Personal</label>
+    <input type="email" class="form-control" name="correo_personal"
+           value="<?php echo $alumno ? htmlspecialchars($alumno['correo_personal']) : ''; ?>">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Correo del Tutor</label>
+    <input type="email" class="form-control" name="correo_tutor"
+           value="<?php echo $alumno ? htmlspecialchars($alumno['correo_tutor'] ?? '') : ''; ?>"
+           placeholder="ejemplo@correo.com">
+</div>
                                     
                                     <div class="section-title">Informaci&oacute;n del Padre</div>
                                     <div class="mb-3">
@@ -1089,7 +1098,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Validación del formulario
+        // Validaciï¿½n del formulario
         document.getElementById('alumnoForm').addEventListener('submit', function(e) {
             const tabs = document.querySelectorAll('.tab-pane');
             let faltanCampos = false;
@@ -1126,7 +1135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         });
 
-        // Auto-generar correo institucional si está vacío
+        // Auto-generar correo institucional si estï¿½ vacï¿½o
         document.querySelector('[name="matricula"]')?.addEventListener('blur', function() {
             const correoInput = document.querySelector('[name="correo_institucional"]');
             const matricula = this.value.trim();

@@ -89,154 +89,224 @@ $grupos = $con->query("SELECT id_grupo, nombre FROM grupos WHERE activo = 1 ORDE
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Alumnos - CECYTE</title>
+    <title>Gestión de Alumnos | CECyTE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --verde-oscuro-1: #1a5330;
-            --verde-oscuro-2: #2e7d32;
-            --verde-medio: #4caf50;
-            --verde-claro: #8bc34a;
-            --verde-muy-claro: #f1f8e9;
-            --blanco: #ffffff;
-            --sombra: rgba(0, 0, 0, 0.1);
+            --primary: #1a5330;
+            --primary-light: #2e7d32;
+            --secondary: #6c757d;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); min-height: 100vh; padding: 20px; color: #333; }
+        body { 
+            background-color: var(--bg); 
+            font-family: 'Inter', sans-serif; 
+            color: #333;
+            padding-top: 90px;
+        }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        /* --- NAVBAR FIJA --- */
+        .navbar {
+            background: var(--white);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
 
-        .header { background: var(--blanco); padding: 20px 30px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px var(--sombra); display: flex; justify-content: space-between; align-items: center; border-left: 8px solid var(--verde-oscuro-1); }
+        .navbar-brand {
+            display: flex; align-items: center; gap: 15px; text-decoration: none;
+        }
 
-        .header h1 { color: var(--verde-oscuro-1); font-size: 24px; display: flex; align-items: center; gap: 12px; }
+        .navbar-brand img { height: 45px; width: auto; }
+        .navbar-brand span { font-weight: 700; color: var(--primary); font-size: 1.2rem; }
 
-        .nav-links { display: flex; gap: 10px; }
+        .nav-actions { display: flex; gap: 10px; }
 
-        .nav-links a { text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.3s; background: var(--verde-muy-claro); color: var(--verde-oscuro-2); border: 1px solid var(--verde-claro); }
+        /* --- CONTENEDOR --- */
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 20px 40px; }
 
-        .nav-links a:hover { background: var(--verde-oscuro-2); color: white; transform: translateY(-2px); }
+        .card { 
+            background: var(--white); border-radius: 20px; padding: 25px; 
+            margin-bottom: 25px; box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
 
-        .card { background: var(--blanco); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px var(--sombra); }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0;
+        }
 
-        .card h2 { color: var(--verde-oscuro-2); font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--verde-muy-claro); padding-bottom: 10px; }
+        .card-header h2 { font-size: 1.25rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end; }
+        /* --- FILTROS --- */
+        .form-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 15px; align-items: flex-end; 
+        }
 
-        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 700; color: var(--verde-oscuro-1); }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--secondary); }
+        .form-group input, .form-group select { 
+            width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.9rem; outline: none;
+        }
 
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        /* --- TABLA --- */
+        .table-responsive { overflow-x: auto; }
+        .tabla { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .tabla th { 
+            text-align: left; padding: 15px; color: var(--secondary); 
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 2px solid #eee; background: #f8f9fa;
+        }
+        .tabla td { padding: 15px; border-bottom: 1px solid #f1f1f1; font-size: 0.9rem; }
+        .tabla tr:hover { background: #fafafa; }
 
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; font-size: 14px; text-decoration: none; }
+        /* --- COMPONENTES --- */
+        .btn { 
+            padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; 
+            font-weight: 600; font-size: 0.85rem; display: inline-flex; 
+            align-items: center; gap: 8px; transition: var(--transition); text-decoration: none; 
+        }
 
-        .btn-primary { background: var(--verde-oscuro-2); color: white; }
-        .btn-secondary { background: #757575; color: white; }
-
-        .table-container { overflow-x: auto; }
-        .tabla { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-        .tabla thead { background: var(--verde-oscuro-1); color: white; }
-        .tabla th, .tabla td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
-
-        .estatus-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .estatus-activo { background: #c8e6c9; color: #2e7d32; }
-        .estatus-inactivo { background: #ffcdd2; color: #c62828; }
-
-        .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; color: white; margin-right: 3px; font-size: 13px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
+        .btn-secondary { background: #e9ecef; color: var(--secondary); }
         
-        .paginacion { display: flex; justify-content: center; gap: 5px; margin-top: 20px; }
-        .page-link { padding: 8px 14px; border-radius: 4px; background: white; border: 1px solid #ddd; color: var(--verde-oscuro-2); text-decoration: none; }
-        .page-link.active { background: var(--verde-oscuro-2); color: white; }
+        .estatus-badge { padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        .estatus-activo { background: #d4edda; color: #155724; }
+        .estatus-inactivo { background: #f8d7da; color: #721c24; }
+
+        .btn-action { 
+            width: 35px; height: 35px; display: inline-flex; align-items: center; 
+            justify-content: center; border-radius: 8px; color: white; text-decoration: none;
+        }
+
+        /* PAGINACION */
+        .paginacion { display: flex; justify-content: center; gap: 8px; margin-top: 25px; }
+        .page-link { 
+            padding: 8px 16px; border-radius: 8px; background: var(--white); 
+            color: var(--primary); text-decoration: none; font-weight: 600;
+            box-shadow: var(--shadow-sm); transition: var(--transition);
+        }
+        .page-link.active { background: var(--primary); color: white; }
+        .page-link:hover:not(.active) { background: #f0f0f0; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1><i class="fas fa-user-graduate"></i> CECYTE - Gestión de Alumnos</h1>
-        <div class="nav-links">
-            <a href="main.php"><i class="fas fa-home"></i> Inicio</a>
-            <a href="nuevo_alumno2.php" style="background: var(--verde-oscuro-2); color: white;"><i class="fas fa-plus"></i> Nuevo Alumno</a>
-            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Salir</a>
+    <nav class="navbar">
+        <a href="main.php" class="navbar-brand">
+            <img src="img/logo_cecyte.jpg" alt="CECyTE Logo">
+            <span>CECyTE Santa Catarina</span>
+        </a>
+        <div class="nav-actions">
+            <a href="main.php" class="btn btn-secondary"><i class="fas fa-home"></i></a>
+            <a href="logout.php" class="btn btn-secondary" style="color: #dc3545;"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-search"></i> Filtros de Alumnos</h2>
+                <a href="nuevo_alumno2.php" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Alumno</a>
+            </div>
+            <form method="GET" class="form-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Búsqueda General</label>
+                    <input type="text" name="busqueda" placeholder="Matrícula, nombre o correo..." value="<?= htmlspecialchars($filtro_busqueda) ?>">
+                </div>
+                <div class="form-group">
+                    <label>Carrera</label>
+                    <select name="carrera">
+                        <option value="">Todas las carreras</option>
+                        <?php foreach ($carreras as $c): ?>
+                            <option value="<?= $c['id_carrera'] ?>" <?= $filtro_carrera == $c['id_carrera'] ? 'selected' : '' ?>><?= htmlspecialchars($c['nombre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estatus</label>
+                    <select name="activo">
+                        <option value="">Todos</option>
+                        <option value="Activo" <?= $filtro_estatus == 'Activo' ? 'selected' : '' ?>>Activo</option>
+                        <option value="Inactivo" <?= $filtro_estatus == 'Inactivo' ? 'selected' : '' ?>>Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;"><i class="fas fa-filter"></i> Filtrar</button>
+                    <a href="gestion_alumnos.php" class="btn btn-secondary"><i class="fas fa-sync"></i></a>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-list-ul"></i> Listado de Estudiantes</h2>
+                <span style="font-size: 0.85rem; color: var(--secondary); font-weight: 500;">Total: <?= $total_alumnos ?> alumnos</span>
+            </div>
+            <div class="table-responsive">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Matrícula</th>
+                            <th>Nombre del Alumno</th>
+                            <th>Carrera / Grupo</th>
+                            <th>Estatus</th>
+                            <th style="text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($alumnos)): ?>
+                            <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--secondary);">No se encontraron resultados.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($alumnos as $al): ?>
+                            <tr>
+                                <td style="font-weight: 700; color: var(--primary);">#<?= htmlspecialchars($al['matricula']) ?></td>
+                                <td style="font-weight: 500;"><?= htmlspecialchars($al['nombre'] . ' ' . $al['apellido_paterno'] . ' ' . $al['apellido_materno']) ?></td>
+                                <td>
+                                    <div style="font-size: 0.85rem; color: #444;"><?= htmlspecialchars($al['carrera_nombre'] ?? 'N/A') ?></div>
+                                    <span style="font-size: 0.75rem; color: var(--primary-light); font-weight: 700;">GRUPO: <?= htmlspecialchars($al['grupo_nombre'] ?? 'S/G') ?></span>
+                                </td>
+                                <td>
+                                    <span class="estatus-badge <?= ($al['activo'] == 'Activo') ? 'estatus-activo' : 'estatus-inactivo' ?>">
+                                        <?= $al['activo'] ?>
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="ver_alumno2.php?matricula=<?= $al['matricula'] ?>" class="btn-action" style="background: #3b82f6;" title="Ver"><i class="fas fa-eye"></i></a>
+                                    <a href="editar_alumnos2.php?matricula=<?= $al['matricula'] ?>" class="btn-action" style="background: #10b981; margin-left: 5px;" title="Editar"><i class="fas fa-edit"></i></a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <?php if ($total_paginas > 1): ?>
+                <div class="paginacion">
+                    <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                        <a href="?page=<?= $i ?>&busqueda=<?= urlencode($filtro_busqueda) ?>&carrera=<?= $filtro_carrera ?>&activo=<?= $filtro_estatus ?>" 
+                           class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
+                    <?php endfor; ?>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
-
-    <div class="card">
-        <h2><i class="fas fa-search"></i> Filtros y Búsqueda</h2>
-        <form method="GET" class="form-grid">
-            <div class="form-group" style="grid-column: span 2;">
-                <label>Búsqueda General</label>
-                <input type="text" name="busqueda" placeholder="Nombre, matrícula o correo..." value="<?php echo htmlspecialchars($filtro_busqueda); ?>">
-            </div>
-            <div class="form-group">
-                <label>Carrera</label>
-                <select name="carrera">
-                    <option value="">Todas</option>
-                    <?php foreach ($carreras as $c): ?>
-                        <option value="<?= $c['id_carrera'] ?>" <?= $filtro_carrera == $c['id_carrera'] ? 'selected' : '' ?>><?= htmlspecialchars($c['nombre']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Estatus</label>
-                <select name="activo">
-                    <option value="">Todos</option>
-                    <option value="Activo" <?= $filtro_estatus == 'Activo' ? 'selected' : '' ?>>Activo</option>
-                    <option value="Inactivo" <?= $filtro_estatus == 'Inactivo' ? 'selected' : '' ?>>Inactivo</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filtrar</button>
-                <a href="gestion_alumnos.php" class="btn btn-secondary"><i class="fas fa-sync"></i></a>
-            </div>
-        </form>
-    </div>
-
-    <div class="card">
-        <div class="table-container">
-            <table class="tabla">
-                <thead>
-                    <tr>
-                        <th>Matrícula</th>
-                        <th>Nombre del Alumno</th>
-                        <th>Carrera / Grupo</th>
-                        <th>Estatus</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($alumnos as $al): ?>
-                    <tr>
-                        <td><strong>#<?= htmlspecialchars($al['matricula']) ?></strong></td>
-                        <td><?= htmlspecialchars($al['nombre'] . ' ' . $al['apellido_paterno'] . ' ' . $al['apellido_materno']) ?></td>
-                        <td>
-                            <div><?= htmlspecialchars($al['carrera_nombre'] ?? 'N/A') ?></div>
-                            <small style="color: var(--verde-oscuro-2); font-weight: bold;">[<?= htmlspecialchars($al['grupo_nombre'] ?? 'S/G') ?>]</small>
-                        </td>
-                        <td>
-                            <span class="estatus-badge <?= ($al['activo'] == 'Activo') ? 'estatus-activo' : 'estatus-inactivo' ?>">
-                                <?= $al['activo'] ?>
-                            </span>
-                        </td>
-                        <td>
-                            <a href="ver_alumno2.php?matricula=<?= $al['matricula'] ?>" class="btn-action" style="background: #2196f3;" title="Ver"><i class="fas fa-eye"></i></a>
-                            <a href="editar_alumnos2.php?matricula=<?= $al['matricula'] ?>" class="btn-action" style="background: #4caf50;" title="Editar"><i class="fas fa-edit"></i></a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        
-        <?php if ($total_paginas > 1): ?>
-            <div class="paginacion">
-                <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
-                    <a href="?page=<?= $i ?>&busqueda=<?= urlencode($filtro_busqueda) ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
-                <?php endfor; ?>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
 
 </body>
 </html>

@@ -149,151 +149,247 @@ $alumnos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGA-CECYTE | Gestión de Fotos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>Gestión de Fotos | CECyTE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary-color: #2e7d32; --secondary-color: #1b5e20; }
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        .header-card { 
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); 
-            color: white; padding: 25px; border-radius: 15px 15px 0 0; border: none;
+        :root {
+            --primary: #1a5330;
+            --primary-light: #2e7d32;
+            --secondary: #6c757d;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --success: #2e7d32;
+            --warning: #ffa000;
         }
 
-        .main-container { margin-top: -30px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 50px; }
-        
-        .card-alumno { 
-            border: 1px solid #eee; border-radius: 15px; transition: 0.3s; background: #fff; overflow: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            background-color: var(--bg); 
+            font-family: 'Inter', sans-serif; 
+            color: #333;
+            padding-top: 90px;
         }
-        .card-alumno:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+        /* --- NAVBAR FIJA --- */
+        .navbar {
+            background: var(--white);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .navbar-brand {
+            display: flex; align-items: center; gap: 15px; text-decoration: none;
+        }
+
+        .navbar-brand img { height: 45px; width: auto; }
+        .navbar-brand span { font-weight: 700; color: var(--primary); font-size: 1.2rem; }
+
+        .nav-actions { display: flex; gap: 10px; }
+
+        /* --- CONTENEDOR --- */
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 20px 40px; }
+
+        .card { 
+            background: var(--white); border-radius: 20px; padding: 25px; 
+            margin-bottom: 25px; box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-header h2 { font-size: 1.25rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+
+        /* --- FORMULARIO FILTROS --- */
+        .filter-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .form-control { 
+            padding: 10px 15px; border-radius: 10px; border: 1px solid #ddd; 
+            font-family: 'Inter', sans-serif; font-size: 0.9rem;
+        }
+        .form-select { 
+            padding: 10px 15px; border-radius: 10px; border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+
+        /* --- GRID DE ALUMNOS --- */
+        .alumnos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card-alumno {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            transition: transform 0.2s;
+            border: 1px solid transparent;
+        }
+        .card-alumno:hover { transform: translateY(-5px); border-color: #e0e0e0; }
 
         .foto-preview {
-            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
-            border: 3px solid #e8f5e9; margin: 15px auto; display: block;
+            width: 110px; height: 110px; border-radius: 50%;
+            object-fit: cover; margin: 10px auto 15px;
+            border: 4px solid #f0f4f1;
+            box-shadow: var(--shadow-sm);
         }
 
         .no-foto {
-            width: 100px; height: 100px; border-radius: 50%; background: #f0f0f0;
-            display: flex; align-items: center; justify-content: center; margin: 15px auto;
-            color: #ccc; font-size: 40px; border: 3px dashed #ddd;
+            width: 110px; height: 110px; border-radius: 50%;
+            background: #f0f0f0; margin: 10px auto 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: #ccc; border: 2px dashed #ddd;
         }
 
-        .btn-primary { background-color: var(--primary-color); border: none; }
-        .btn-primary:hover { background-color: var(--secondary-color); }
-        
-        .pagination .active .page-link { background-color: var(--primary-color); border-color: var(--primary-color); }
-        .pagination .page-link { color: var(--primary-color); }
+        .status-badge {
+            position: absolute; top: 15px; right: 15px;
+            font-size: 0.7rem; font-weight: 700; padding: 4px 12px;
+            border-radius: 20px; text-transform: uppercase;
+        }
+        .bg-registrada { background: #e8f5e9; color: var(--success); }
+        .bg-pendiente { background: #fff3e0; color: var(--warning); }
 
-        .file-select { font-size: 0.8rem; border-radius: 20px; }
-        .badge-status { position: absolute; top: 10px; right: 10px; border-radius: 20px; }
+        .nombre-alumno { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; }
+        .info-alumno { font-size: 0.85rem; color: var(--secondary); margin-bottom: 15px; }
+
+        /* --- BOTONES --- */
+        .btn { 
+            padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer; 
+            font-weight: 600; font-size: 0.85rem; display: inline-flex; 
+            align-items: center; gap: 8px; text-decoration: none; transition: 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: #e9ecef; color: var(--secondary); }
+        .btn-danger-outline { background: transparent; border: 1px solid #ffcdd2; color: #d32f2f; }
+        .btn-danger-outline:hover { background: #ffebee; }
+
+        .input-file-custom { font-size: 0.75rem; width: 100%; margin-bottom: 10px; }
+
+        /* --- PAGINACIÓN --- */
+        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 30px; list-style: none; }
+        .page-link { 
+            padding: 8px 16px; border-radius: 8px; background: var(--white);
+            text-decoration: none; color: var(--primary); font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+        .page-item.active .page-link { background: var(--primary); color: white; }
+
+        .alert {
+            padding: 15px; border-radius: 12px; margin-bottom: 20px;
+            border-left: 5px solid var(--success); background: #e8f5e9; color: var(--success);
+        }
     </style>
 </head>
 <body>
 
-<div class="container py-5">
-    <div class="header-card shadow-lg">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h2 class="mb-0"><i class='bx bx-camera-movie me-2'></i>Control de Identidad</h2>
-                <p class="mb-0 opacity-75">Gestión de fotografías para expedientes de alumnos</p>
-            </div>
-            <a href="main.php" class="btn btn-light btn-sm rounded-pill px-3">
-                <i class='bx bx-home-alt'></i> Panel Principal
-            </a>
+    <nav class="navbar">
+        <a href="main.php" class="navbar-brand">
+            <img src="img/logo_cecyte.jpg" alt="CECyTE Logo">
+            <span>CECyTE Santa Catarina</span>
+        </a>
+        <div class="nav-actions">
+            <a href="main.php" class="btn btn-secondary"><i class="fas fa-home"></i></a>
+            <a href="logout.php" class="btn btn-secondary" style="color: #dc3545;"><i class="fas fa-sign-out-alt"></i></a>
         </div>
-    </div>
+    </nav>
 
-    <div class="main-container">
+    <div class="container">
+        
         <?php if(isset($_SESSION['success'])): ?>
-            <div class="alert alert-success alert-dismissible fade show rounded-pill" role="alert">
-                <i class='bx bx-check-circle me-2'></i><?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="alert">
+                <i class="fas fa-check-circle"></i> <?= $_SESSION['success']; unset($_SESSION['success']); ?>
             </div>
         <?php endif; ?>
 
-        <form method="GET" class="row g-2 mb-4">
-            <div class="col-md-5">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-0"><i class='bx bx-search'></i></span>
-                    <input type="text" name="busqueda" class="form-control bg-light border-0" placeholder="Buscar..." value="<?php echo $busqueda; ?>">
-                </div>
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-filter"></i> Búsqueda de Alumnos</h2>
             </div>
-            <div class="col-md-3">
-                <select name="tipo_busqueda" class="form-select bg-light border-0 text-muted">
-                    <option value="matricula" <?php if($tipo_busqueda=='matricula') echo 'selected'; ?>>Por Matrícula</option>
-                    <option value="nombre" <?php if($tipo_busqueda=='nombre') echo 'selected'; ?>>Por Nombre</option>
+            <form method="GET" class="filter-row">
+                <input type="text" name="busqueda" class="form-control" style="flex: 2; min-width: 200px;" placeholder="Escribe matrícula o nombre..." value="<?= htmlspecialchars($busqueda) ?>">
+                <select name="tipo_busqueda" class="form-select" style="flex: 1;">
+                    <option value="matricula" <?= $tipo_busqueda=='matricula'?'selected':'' ?>>Por Matrícula</option>
+                    <option value="nombre" <?= $tipo_busqueda=='nombre'?'selected':'' ?>>Por Nombre</option>
                 </select>
-            </div>
-            <div class="col-md-3">
-                <select name="filtro_foto" class="form-select bg-light border-0 text-muted">
-                    <option value="todos">Todos los registros</option>
-                    <option value="con_foto" <?php if($filtro_foto=='con_foto') echo 'selected'; ?>>Con fotografía</option>
-                    <option value="sin_foto" <?php if($filtro_foto=='sin_foto') echo 'selected'; ?>>Sin fotografía</option>
+                <select name="filtro_foto" class="form-select" style="flex: 1;">
+                    <option value="todos">Todos</option>
+                    <option value="con_foto" <?= $filtro_foto=='con_foto'?'selected':'' ?>>Con Foto</option>
+                    <option value="sin_foto" <?= $filtro_foto=='sin_foto'?'selected':'' ?>>Sin Foto</option>
                 </select>
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary w-100 rounded-3"><i class='bx bx-filter'></i></button>
-            </div>
-        </form>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
 
-        <div class="row g-4">
+        <div class="alumnos-grid">
             <?php foreach ($alumnos as $alumno): 
                 $path = DIRECTORIO_IMAGENES . $alumno['rutaImagen'];
                 $has_photo = (!empty($alumno['rutaImagen']) && file_exists($path));
             ?>
-            <div class="col-md-4">
-                <div class="card card-alumno p-3 text-center position-relative">
-                    <span class="badge badge-status <?php echo $has_photo ? 'bg-success' : 'bg-warning text-dark'; ?>">
-                        <?php echo $has_photo ? 'Registrada' : 'Pendiente'; ?>
-                    </span>
+            <div class="card card-alumno">
+                <span class="status-badge <?= $has_photo ? 'bg-registrada' : 'bg-pendiente' ?>">
+                    <?= $has_photo ? 'Registrada' : 'Pendiente' ?>
+                </span>
+                
+                <?php if($has_photo): ?>
+                    <img src="<?= $path ?>" class="foto-preview" alt="Alumno">
+                <?php else: ?>
+                    <div class="no-foto"><i class="fas fa-user"></i></div>
+                <?php endif; ?>
+
+                <h3 class="nombre-alumno"><?= $alumno['nombre'] ?></h3>
+                <p class="info-alumno">
+                    <?= $alumno['apellido_paterno'] ?> <br>
+                    <strong>ID: <?= $alumno['matricula'] ?></strong>
+                </p>
+
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="matricula" value="<?= $alumno['matricula'] ?>">
+                    <input type="file" name="foto" class="form-control input-file-custom" accept="image/*">
                     
-                    <?php if($has_photo): ?>
-                        <img src="<?php echo $path; ?>" class="foto-preview shadow-sm" alt="Alumno">
-                    <?php else: ?>
-                        <div class="no-foto"><i class='bx bx-user'></i></div>
-                    <?php endif; ?>
-
-                    <h6 class="mb-1 text-uppercase fw-bold"><?php echo $alumno['nombre']; ?></h6>
-                    <p class="text-muted small mb-3"><?php echo $alumno['apellido_paterno'] . ' | ' . $alumno['matricula']; ?></p>
-
-                    <form method="POST" enctype="multipart/form-data" class="mt-2">
-                        <input type="hidden" name="matricula" value="<?php echo $alumno['matricula']; ?>">
-                        <div class="mb-2">
-                            <input type="file" name="foto" class="form-control form-control-sm file-select" accept="image/*">
-                        </div>
-                        <div class="d-flex gap-1">
-                            <button type="submit" name="subir_foto" class="btn btn-primary btn-sm w-100 rounded-pill">
-                                <i class='bx bx-upload'></i> <?php echo $has_photo ? 'Cambiar' : 'Subir'; ?>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="submit" name="subir_foto" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                            <i class="fas fa-upload"></i> <?= $has_photo ? 'Cambiar' : 'Subir' ?>
+                        </button>
+                        
+                        <?php if($has_photo): ?>
+                            <button type="submit" name="eliminar_foto" class="btn btn-danger-outline" onclick="return confirm('¿Eliminar definitivamente?')">
+                                <i class="fas fa-trash"></i>
                             </button>
-                            <?php if($has_photo): ?>
-                                <button type="submit" name="eliminar_foto" class="btn btn-outline-danger btn-sm rounded-circle" onclick="return confirm('¿Eliminar foto?')">
-                                    <i class='bx bx-trash'></i>
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    </form>
-                </div>
+                        <?php endif; ?>
+                    </div>
+                </form>
             </div>
             <?php endforeach; ?>
         </div>
 
         <?php if($total_paginas > 1): ?>
-        <nav class="mt-5">
-            <ul class="pagination justify-content-center">
-                <?php for($i=1; $i<=$total_paginas; $i++): ?>
-                    <li class="page-item <?php echo ($i==$pagina) ? 'active' : ''; ?>">
-                        <a class="page-link shadow-sm mx-1 rounded-circle" href="?pagina=<?php echo $i; ?>&busqueda=<?php echo $busqueda; ?>&filtro_foto=<?php echo $filtro_foto; ?>">
-                            <?php echo $i; ?>
-                        </a>
-                    </li>
-                <?php endfor; ?>
-            </ul>
-        </nav>
+        <ul class="pagination">
+            <?php for($i=1; $i<=$total_paginas; $i++): ?>
+                <li class="page-item <?= ($i==$pagina)?'active':'' ?>">
+                    <a class="page-link" href="?pagina=<?= $i ?>&busqueda=<?= urlencode($busqueda) ?>&filtro_foto=<?= $filtro_foto ?>">
+                        <?= $i ?>
+                    </a>
+                </li>
+            <?php endfor; ?>
+        </ul>
         <?php endif; ?>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+
 </body>
 </html>

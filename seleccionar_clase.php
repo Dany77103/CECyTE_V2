@@ -27,7 +27,7 @@ if ($es_admin) {
 $id_maestro_seleccionado = $_GET['maestro_id'] ?? null;
 
 if (!$es_admin) {
-    $id_maestro = $_SESSION['maestro_id']; 
+    $id_maestro = $_SESSION['maestro_id'] ?? 0; 
     $sql = "SELECT DISTINCT h.id_materia, h.id_grupo, m.materia, g.nombre as grupo_nombre
             FROM horarios_maestros h
             JOIN materias m ON h.id_materia = m.id_materia
@@ -38,7 +38,7 @@ if (!$es_admin) {
     $stmt->execute(['id_maestro' => $id_maestro]);
 } else {
     $query = "SELECT DISTINCT h.id_materia, h.id_grupo, m.materia, g.nombre as grupo_nombre,
-                     CONCAT(ma.nombre, ' ', ma.apellido_paterno) as nombre_maestro
+                       CONCAT(ma.nombre, ' ', ma.apellido_paterno) as nombre_maestro
               FROM horarios_maestros h
               JOIN materias m ON h.id_materia = m.id_materia
               JOIN grupos g ON h.id_grupo = g.id_grupo
@@ -75,6 +75,7 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
             --bg: #f4f7f6;
             --white: #ffffff;
             --shadow: 0 4px 15px rgba(0,0,0,0.08);
+            --dark-qr: #2c3e50;
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #333; }
@@ -88,10 +89,8 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .header h1 { font-size: 1.4rem; margin: 0; }
-
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         
-        /* Nuevo estilo para el botón superior */
         .top-actions {
             margin-bottom: 25px;
             display: flex;
@@ -99,7 +98,7 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .btn-qr-global {
-            background: #34495e;
+            background: var(--dark-qr);
             color: white;
             padding: 12px 24px;
             border-radius: 10px;
@@ -113,9 +112,10 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .btn-qr-global:hover {
-            background: #2c3e50;
+            background: #1a252f;
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            color: white;
         }
 
         .clases-grid {
@@ -148,8 +148,16 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 8px; font-weight: 600; font-size: 0.85rem;
             transition: 0.2s;
         }
-        .btn-main { background: var(--primary); color: white; }
-        .btn-main:hover { background: var(--primary-dark); }
+        .btn-main { background: var(--primary); color: white; border: none; }
+        .btn-main:hover { background: var(--primary-dark); color: white; }
+        
+        .btn-qr-sec { 
+            background: var(--dark-qr); 
+            color: white; 
+            border: 1px solid var(--dark-qr);
+        }
+        .btn-qr-sec:hover { background: #1a252f; color: white; }
+
         .btn-outline { border: 1px solid #ddd; color: #555; }
         .btn-outline:hover { background: #eee; }
 
@@ -173,7 +181,7 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <a href="main.php" style="color:white; text-decoration:none;"><i class="fas fa-arrow-left"></i> Volver</a>
     <h1>CECYTE Santa Catarina</h1>
     <div class="user-info">
-        <small><i class="fas fa-user"></i> <?= htmlspecialchars($_SESSION['nombre_completo']) ?></small>
+        <small><i class="fas fa-user"></i> <?= htmlspecialchars($_SESSION['nombre_completo'] ?? 'Usuario') ?></small>
     </div>
 </header>
 
@@ -190,7 +198,7 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </option>
                 <?php endforeach; ?>
             </select>
-            <button type="submit" class="btn-main" style="padding:0 20px; border:none; border-radius:8px; cursor:pointer;">
+            <button type="submit" class="btn-main" style="padding:0 20px; border-radius:8px; cursor:pointer;">
                 Filtrar
             </button>
         </form>
@@ -198,8 +206,8 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endif; ?>
 
     <div class="top-actions">
-        <a href="asistencia_qr_general.php" class="btn-qr-global">
-            <i class="fas fa-qrcode"></i> Asistencia con QR
+        <a href="asistencia_qrv2.php" class="btn-qr-global">
+            <i class="fas fa-qrcode"></i> Lector QR General
         </a>
     </div>
 
@@ -230,13 +238,15 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="card-footer">
                     <a href="tomar_asistencia.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-main">
-                        <i class="fas fa-user-check"></i> Asistencia
+                        <i class="fas fa-user-check"></i> Asistencia Manual
                     </a>
+                    
+                    <a href="asistencia_qrv2.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-qr-sec">
+                        <i class="fas fa-qrcode"></i> Escanear QR
+                    </a>
+
                     <a href="calificaciones.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-outline">
                         <i class="fas fa-star"></i> Calificaciones
-                    </a>
-                    <a href="generar_qr.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-outline" style="background:#f1f1f1;">
-                        <i class="fas fa-qrcode"></i> Código QR
                     </a>
                 </div>
             </div>

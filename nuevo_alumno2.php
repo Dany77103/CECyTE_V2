@@ -27,12 +27,12 @@ try {
                    ORDER BY g.semestre, g.nombre";
     $grupos = $con->query($sql_grupos)->fetchAll(PDO::FETCH_ASSOC);
     
-    // Obtener el último número de matrícula para sugerir siguiente
+    // Obtener el ï¿½ltimo nï¿½mero de matrï¿½cula para sugerir siguiente
     $sql_ultima_matricula = "SELECT matricula FROM alumnos WHERE matricula LIKE CONCAT(YEAR(CURDATE()), '%') ORDER BY id_alumno DESC LIMIT 1";
     $stmt = $con->query($sql_ultima_matricula);
     $ultima_matricula = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    $siguiente_matricula = date('Y') . '001'; // Matrícula por defecto
+    $siguiente_matricula = date('Y') . '001'; // Matrï¿½cula por defecto
     if ($ultima_matricula && isset($ultima_matricula['matricula'])) {
         $ultimo_numero = intval(substr($ultima_matricula['matricula'], 4));
         $siguiente_matricula = date('Y') . str_pad($ultimo_numero + 1, 3, '0', STR_PAD_LEFT);
@@ -54,7 +54,7 @@ $errores = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validar CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $errores[] = "Token de seguridad inválido. Por favor, recarga la página.";
+        $errores[] = "Token de seguridad invï¿½lido. Por favor, recarga la pï¿½gina.";
     } else {
         // Recoger datos del formulario
         $datos = [
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'usuario_creacion' => $_SESSION['username'] ?? 'Sistema'
         ];
         
-        // Validaciones básicas
+        // Validaciones bï¿½sicas
         $camposRequeridos = [
             'matricula', 'nombre', 'apellido_paterno', 'fecha_nacimiento', 
             'curp', 'id_genero', 'telefono_celular', 'fecha_ingreso', 
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!empty($datos['curp'])) {
             $pattern_curp = '/^[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9A-Z]{2}$/';
             if (!preg_match($pattern_curp, strtoupper($datos['curp']))) {
-                $errores[] = "El CURP no tiene un formato válido (18 caracteres alfanuméricos).";
+                $errores[] = "El CURP no tiene un formato vï¿½lido (18 caracteres alfanumï¿½ricos).";
             }
         }
         
@@ -125,32 +125,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!empty($datos['rfc'])) {
             $pattern_rfc = '/^[A-Z&N]{3,4}[0-9]{6}[A-Z0-9]{3}$/';
             if (!preg_match($pattern_rfc, strtoupper($datos['rfc']))) {
-                $errores[] = "El RFC no tiene un formato válido.";
+                $errores[] = "El RFC no tiene un formato vï¿½lido.";
             }
         }
         
         // Validar correos
         if (!empty($datos['correo_personal']) && !filter_var($datos['correo_personal'], FILTER_VALIDATE_EMAIL)) {
-            $errores[] = "El correo personal no es válido.";
+            $errores[] = "El correo personal no es vï¿½lido.";
         }
         
         if (!empty($datos['correo_institucional']) && !filter_var($datos['correo_institucional'], FILTER_VALIDATE_EMAIL)) {
-            $errores[] = "El correo institucional no es válido.";
+            $errores[] = "El correo institucional no es vï¿½lido.";
         }
         
         // Validar fechas
         if (!empty($datos['fecha_nacimiento'])) {
             $fecha = DateTime::createFromFormat('Y-m-d', $datos['fecha_nacimiento']);
             if (!$fecha || $fecha->format('Y-m-d') !== $datos['fecha_nacimiento']) {
-                $errores[] = "La fecha de nacimiento no es válida.";
+                $errores[] = "La fecha de nacimiento no es vï¿½lida.";
             } else {
                 $hoy = new DateTime();
                 $edad = $hoy->diff($fecha)->y;
                 if ($edad < 15) {
-                    $errores[] = "El alumno debe tener al menos 15 años de edad.";
+                    $errores[] = "El alumno debe tener al menos 15 aï¿½os de edad.";
                 }
                 if ($edad > 25) {
-                    $errores[] = "La edad del alumno parece incorrecta (mayor a 25 años).";
+                    $errores[] = "La edad del alumno parece incorrecta (mayor a 25 aï¿½os).";
                 }
             }
         }
@@ -158,16 +158,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!empty($datos['fecha_ingreso'])) {
             $fecha = DateTime::createFromFormat('Y-m-d', $datos['fecha_ingreso']);
             if (!$fecha || $fecha->format('Y-m-d') !== $datos['fecha_ingreso']) {
-                $errores[] = "La fecha de ingreso no es válida.";
+                $errores[] = "La fecha de ingreso no es vï¿½lida.";
             }
         }
         
-        // Validar teléfono celular
+        // Validar telï¿½fono celular
         if (!empty($datos['telefono_celular']) && !preg_match('/^[0-9]{10}$/', $datos['telefono_celular'])) {
-            $errores[] = "El teléfono celular debe tener 10 dígitos.";
+            $errores[] = "El telï¿½fono celular debe tener 10 dï¿½gitos.";
         }
         
-        // Verificar matrícula única
+        // Verificar matrï¿½cula ï¿½nica
         if (!empty($datos['matricula'])) {
             try {
                 $sql_check = "SELECT COUNT(*) as count FROM alumnos WHERE matricula = :matricula";
@@ -177,14 +177,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $result = $stmt_check->fetch(PDO::FETCH_ASSOC);
                 
                 if ($result['count'] > 0) {
-                    $errores[] = "La matrícula ya existe. Por favor, use otra.";
+                    $errores[] = "La matrï¿½cula ya existe. Por favor, use otra.";
                 }
             } catch (PDOException $e) {
-                $errores[] = "Error al verificar la matrícula: " . $e->getMessage();
+                $errores[] = "Error al verificar la matrï¿½cula: " . $e->getMessage();
             }
         }
         
-        // Verificar CURP único
+        // Verificar CURP ï¿½nico
         if (!empty($datos['curp'])) {
             try {
                 $sql_check = "SELECT COUNT(*) as count FROM alumnos WHERE curp = :curp";
@@ -194,16 +194,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $result = $stmt_check->fetch(PDO::FETCH_ASSOC);
                 
                 if ($result['count'] > 0) {
-                    $errores[] = "El CURP ya está registrado en el sistema.";
+                    $errores[] = "El CURP ya estï¿½ registrado en el sistema.";
                 }
             } catch (PDOException $e) {
                 $errores[] = "Error al verificar el CURP: " . $e->getMessage();
             }
         }
         
-        // Si se presionó el botón de previsualización
+        // Si se presionï¿½ el botï¿½n de previsualizaciï¿½n
         if (isset($_POST['preview'])) {
-            // Guardar datos en sesión para mostrar en modal
+            // Guardar datos en sesiï¿½n para mostrar en modal
             $_SESSION['preview_data'] = $datos;
             $_SESSION['preview_errors'] = $errores;
             
@@ -212,10 +212,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
         }
         
-        // Si se presionó el botón de guardar y no hay errores
+        // Si se presionï¿½ el botï¿½n de guardar y no hay errores
         if (isset($_POST['guardar']) && empty($errores)) {
             try {
-                // Iniciar transacción
+                // Iniciar transacciï¿½n
                 $con->beginTransaction();
                 
                 // Preparar SQL para insertar
@@ -245,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 $stmt = $con->prepare($sql);
                 
-                // Vincular parámetros
+                // Vincular parï¿½metros
                 $stmt->bindParam(':matricula', $datos['matricula']);
                 $stmt->bindParam(':nombre', $datos['nombre']);
                 $stmt->bindParam(':apellido_paterno', $datos['apellido_paterno']);
@@ -287,19 +287,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt->bindParam(':telefono_madre', $datos['telefono_madre']);
                 $stmt->bindParam(':usuario_creacion', $datos['usuario_creacion']);
                 
-                // Ejecutar inserción
+                // Ejecutar inserciï¿½n
                 if ($stmt->execute()) {
                     $id_alumno = $con->lastInsertId();
                     
-                    // Confirmar transacción
+                    // Confirmar transacciï¿½n
                     $con->commit();
                     
-                    // Limpiar datos de previsualización
+                    // Limpiar datos de previsualizaciï¿½n
                     if (isset($_SESSION['preview_data'])) {
                         unset($_SESSION['preview_data']);
                     }
                     
-                    $_SESSION['success_message'] = "Alumno registrado exitosamente con matrícula: " . $datos['matricula'];
+                    $_SESSION['success_message'] = "Alumno registrado exitosamente con matrï¿½cula: " . $datos['matricula'];
                     header('Location: ver_alumno2.php?matricula=' . urlencode($datos['matricula']));
                     exit();
                     
@@ -315,11 +315,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Cargar datos de previsualización si existen
+// Cargar datos de previsualizaciï¿½n si existen
 $preview_data = isset($_SESSION['preview_data']) ? $_SESSION['preview_data'] : null;
 $show_preview_modal = isset($_GET['preview']) && $preview_data;
 
-// Si hay errores en los datos de previsualización, mostrarlos
+// Si hay errores en los datos de previsualizaciï¿½n, mostrarlos
 if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
     $errores = array_merge($errores, $_SESSION['preview_errors']);
     unset($_SESSION['preview_errors']);
@@ -669,50 +669,50 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
                         </div>
                     </div>
                     
-                    <!-- Información de Contacto -->
-                    <h5 class="section-title mt-4"><i class='bx bx-envelope'></i> Informaci&oacute;n de Contacto</h5>
+                    <!-- Informaciï¿½n de Contacto -->
+<h5 class="section-title mt-4"><i class='bx bx-envelope'></i> Informaci&oacute;n de Contacto</h5>
+
+<div class="row form-row">
+    <div class="col-md-4 mb-3">
+        <label class="form-label required">Tel&eacute;fono Celular</label>
+        <input type="tel" class="form-control" name="telefono_celular" required 
+               value="<?php echo htmlspecialchars($_POST['telefono_celular'] ?? $preview_data['telefono_celular'] ?? ''); ?>"
+               pattern="[0-9]{10}" maxlength="10" placeholder="10 d&iacute;gitos">
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Tel&eacute;fono de Casa</label>
+        <input type="tel" class="form-control" name="telefono_casa" 
+               value="<?php echo htmlspecialchars($_POST['telefono_casa'] ?? $preview_data['telefono_casa'] ?? ''); ?>"
+               pattern="[0-9]{10}" maxlength="10" placeholder="10 d&iacute;gitos">
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Tel&eacute;fono de Emergencia</label>
+        <input type="tel" class="form-control" name="telefono_emergencia" 
+               value="<?php echo htmlspecialchars($_POST['telefono_emergencia'] ?? $preview_data['telefono_emergencia'] ?? ''); ?>"
+               pattern="[0-9]{10}" maxlength="10" placeholder="10 d&iacute;gitos">
+    </div>
+</div>
+
+<div class="row form-row">
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Correo Institucional</label>
+        <input type="email" class="form-control" name="correo_institucional" 
+               value="<?php echo htmlspecialchars($_POST['correo_institucional'] ?? $preview_data['correo_institucional'] ?? ''); ?>"
+               maxlength="100" placeholder="alumno@cecytenl.edu.mx">
+        <div class="info-text">Si se deja vac&iacute;o, se generar&aacute; autom&aacute;ticamente</div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Correo Personal</label>
+        <input type="email" class="form-control" name="correo_personal" 
+               value="<?php echo htmlspecialchars($_POST['correo_personal'] ?? $preview_data['correo_personal'] ?? ''); ?>"
+               maxlength="100" placeholder="correo@ejemplo.com">
+    </div>
+</div>
                     
-                    <div class="row form-row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label required">Tel&eacute;fono Celular</label>
-                            <input type="tel" class="form-control" name="telefono_celular" required 
-                                   value="<?php echo htmlspecialchars($_POST['telefono_celular'] ?? $preview_data['telefono_celular'] ?? ''); ?>"
-                                   pattern="[0-9]{10}" maxlength="10" placeholder="10 d&iacute;gitos">
-                        </div>
-                        
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Tel&eacute;fono de Casa</label>
-                            <input type="tel" class="form-control" name="telefono_casa" 
-                                   value="<?php echo htmlspecialchars($_POST['telefono_casa'] ?? $preview_data['telefono_casa'] ?? ''); ?>"
-                                   pattern="[0-9]{10}" maxlength="10" placeholder="10 d&iacute;gitos">
-                        </div>
-                        
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Tel&eacute;fono de Emergencia</label>
-                            <input type="tel" class="form-control" name="telefono_emergencia" 
-                                   value="<?php echo htmlspecialchars($_POST['telefono_emergencia'] ?? $preview_data['telefono_emergencia'] ?? ''); ?>"
-                                   pattern="[0-9]{10}" maxlength="10" placeholder="10 d&iacute;gitos">
-                        </div>
-                    </div>
-                    
-                    <div class="row form-row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Correo Institucional</label>
-                            <input type="email" class="form-control" name="correo_institucional" 
-                                   value="<?php echo htmlspecialchars($_POST['correo_institucional'] ?? $preview_data['correo_institucional'] ?? ''); ?>"
-                                   maxlength="100" placeholder="alumno@cecytenl.edu.mx">
-                            <div class="info-text">Si se deja vac&iacute;o, se generar&aacute; autom&aacute;ticamente</div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Correo Personal</label>
-                            <input type="email" class="form-control" name="correo_personal" 
-                                   value="<?php echo htmlspecialchars($_POST['correo_personal'] ?? $preview_data['correo_personal'] ?? ''); ?>"
-                                   maxlength="100" placeholder="correo@ejemplo.com">
-                        </div>
-                    </div>
-                    
-                    <!-- Información Académica -->
+                    <!-- Informaciï¿½n Acadï¿½mica -->
                     <h5 class="section-title mt-4"><i class='bx bx-book'></i> Informaci&oacute;n Acad&eacute;mica</h5>
                     
                     <div class="row form-row">
@@ -802,7 +802,7 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
                         </div>
                     </div>
                     
-                    <!-- Información de Salud -->
+                    <!-- Informaciï¿½n de Salud -->
                     <h5 class="section-title mt-4"><i class='bx bx-heart'></i> Informaci&oacute;n de Salud</h5>
                     
                     <div class="row form-row">
@@ -830,7 +830,7 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
                         </div>
                     </div>
                     
-                    <!-- Información Familiar -->
+                    <!-- Informaciï¿½n Familiar -->
                     <h5 class="section-title mt-4"><i class='bx bx-group'></i> Informaci&oacute;n Familiar</h5>
                     
                     <div class="row form-row">
@@ -877,9 +877,16 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
                                    value="<?php echo htmlspecialchars($_POST['telefono_madre'] ?? $preview_data['telefono_madre'] ?? ''); ?>"
                                    pattern="[0-9]{10}" maxlength="10">
                         </div>
+
+                        <div class="col-md-4 mb-3">
+        <label class="form-label">Correo del Tutor</label>
+        <input type="email" class="form-control" name="correo_tutor" 
+               value="<?php echo htmlspecialchars($_POST['correo_tutor'] ?? $preview_data['correo_tutor'] ?? ''); ?>"
+               maxlength="100" placeholder="tutor@ejemplo.com">
+    </div>
                     </div>
                     
-                    <!-- Información Adicional -->
+                    <!-- Informaciï¿½n Adicional -->
                     <h5 class="section-title mt-4"><i class='bx bx-note'></i> Informaci&oacute;n Adicional</h5>
                     
                     <div class="row form-row">
@@ -923,7 +930,7 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
                         </div>
                     </div>
                     
-                    <!-- Botones de acción -->
+                    <!-- Botones de acciï¿½n -->
                     <div class="d-flex justify-content-between mt-5 pt-3 border-top">
                         <a href="gestion_alumnos.php" class="btn btn-cancel">
                             <i class='bx bx-arrow-back'></i> Cancelar
@@ -1000,7 +1007,7 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
                         </div>
                         
                         <div class="preview-section mb-4">
-                            <h6 class="section-title mb-3"><i class='bx bx-envelope'></i> Información de Contacto</h6>
+                            <h6 class="section-title mb-3"><i class='bx bx-envelope'></i> Informaciï¿½n de Contacto</h6>
                             <div class="preview-item">
                                 <span class="preview-label">Tel&eacute;fono Celular:</span>
                                 <span class="preview-value"><?php echo htmlspecialchars($preview_data['telefono_celular']); ?></span>
@@ -1178,13 +1185,13 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
             const year = new Date().getFullYear();
             const matriculaInput = document.querySelector('input[name="matricula"]');
             
-            // Generar número aleatorio entre 1 y 999
+            // Generar nï¿½mero aleatorio entre 1 y 999
             const numero = Math.floor(Math.random() * 999) + 1;
             const matricula = year + numero.toString().padStart(3, '0');
             
             matriculaInput.value = matricula;
             
-            // Actualizar correo institucional si está vacío
+            // Actualizar correo institucional si estï¿½ vacï¿½o
             const correoInput = document.querySelector('input[name="correo_institucional"]');
             if (!correoInput.value || correoInput.value.includes('@')) {
                 correoInput.value = matricula.toLowerCase() + '@cecytenl.edu.mx';
@@ -1204,14 +1211,14 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
             }
             
             const edadDisplay = document.getElementById('edad-display');
-            edadDisplay.textContent = `Edad: ${edad} años`;
+            edadDisplay.textContent = `Edad: ${edad} aï¿½os`;
             
             if (edad < 15) {
                 edadDisplay.style.color = 'red';
-                edadDisplay.innerHTML += ' <small>(Edad mínima: 15 años)</small>';
+                edadDisplay.innerHTML += ' <small>(Edad mï¿½nima: 15 aï¿½os)</small>';
             } else if (edad > 25) {
                 edadDisplay.style.color = 'orange';
-                edadDisplay.innerHTML += ' <small>(¿Edad correcta?)</small>';
+                edadDisplay.innerHTML += ' <small>(ï¿½Edad correcta?)</small>';
             } else {
                 edadDisplay.style.color = 'green';
             }
@@ -1227,12 +1234,12 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
             if (pattern.test(curp)) {
                 curpInput.style.borderColor = 'green';
                 feedback.style.color = 'green';
-                feedback.innerHTML = '<i class="bx bx-check-circle"></i> CURP válido';
+                feedback.innerHTML = '<i class="bx bx-check-circle"></i> CURP vï¿½lido';
                 return true;
             } else {
                 curpInput.style.borderColor = 'red';
                 feedback.style.color = 'red';
-                feedback.innerHTML = '<i class="bx bx-error-circle"></i> Formato inválido (18 caracteres alfanuméricos)';
+                feedback.innerHTML = '<i class="bx bx-error-circle"></i> Formato invï¿½lido (18 caracteres alfanumï¿½ricos)';
                 return false;
             }
         }
@@ -1262,15 +1269,15 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
                 }
             });
             
-            // Restaurar valor seleccionado si aún existe
+            // Restaurar valor seleccionado si aï¿½n existe
             if (currentValue) {
                 grupoSelect.value = currentValue;
             }
         }
         
-        // Validación de formulario
+        // Validaciï¿½n de formulario
         document.getElementById('formAlumno').addEventListener('submit', function(e) {
-            // Si es el botón de previsualización, validar pero no mostrar confirmación
+            // Si es el botï¿½n de previsualizaciï¿½n, validar pero no mostrar confirmaciï¿½n
             if (e.submitter && e.submitter.name === 'preview') {
                 const camposRequeridos = [
                     'matricula', 'nombre', 'apellido_paterno', 'fecha_nacimiento',
@@ -1294,24 +1301,24 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
                 const curpPattern = /^[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9A-Z]{2}$/;
                 if (curp && !curpPattern.test(curp.toUpperCase())) {
                     e.preventDefault();
-                    alert('El CURP no tiene un formato válido (18 caracteres alfanuméricos).');
+                    alert('El CURP no tiene un formato vï¿½lido (18 caracteres alfanumï¿½ricos).');
                     return false;
                 }
                 
-                // Validar teléfono celular
+                // Validar telï¿½fono celular
                 const telefono = this.querySelector('input[name="telefono_celular"]').value.trim();
                 if (telefono && !/^[0-9]{10}$/.test(telefono)) {
                     e.preventDefault();
-                    alert('El teléfono celular debe tener 10 d&iacute;gitos.');
+                    alert('El telï¿½fono celular debe tener 10 d&iacute;gitos.');
                     return false;
                 }
                 
                 return true;
             }
             
-            // Si es el botón de guardar
+            // Si es el botï¿½n de guardar
             if (e.submitter && e.submitter.name === 'guardar') {
-                const confirmar = confirm('¿Está seguro de guardar los datos del nuevo alumno?');
+                const confirmar = confirm('ï¿½Estï¿½ seguro de guardar los datos del nuevo alumno?');
                 if (!confirmar) {
                     e.preventDefault();
                     return false;
@@ -1321,7 +1328,7 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
             return true;
         });
         
-        // Formato automático para CURP y RFC
+        // Formato automï¿½tico para CURP y RFC
         const curpInput = document.querySelector('input[name="curp"]');
         if (curpInput) {
             curpInput.addEventListener('input', function(e) {
@@ -1332,11 +1339,11 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
         const rfcInput = document.querySelector('input[name="rfc"]');
         if (rfcInput) {
             rfcInput.addEventListener('input', function(e) {
-                this.value = this.value.toUpperCase().replace(/[^A-Z0-9&Ñ]/g, '').substring(0, 13);
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9&ï¿½]/g, '').substring(0, 13);
             });
         }
         
-        // Formato para teléfonos (solo números)
+        // Formato para telï¿½fonos (solo nï¿½meros)
         const telefonoInputs = document.querySelectorAll('input[type="tel"]');
         telefonoInputs.forEach(input => {
             input.addEventListener('input', function(e) {
@@ -1357,20 +1364,20 @@ if (isset($_SESSION['preview_errors']) && !empty($_SESSION['preview_errors'])) {
             });
         }
         
-        // Mostrar modal de previsualización si hay datos
+        // Mostrar modal de previsualizaciï¿½n si hay datos
         <?php if ($show_preview_modal): ?>
         document.addEventListener('DOMContentLoaded', function() {
             const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
             previewModal.show();
             
-            // Limpiar parámetro de URL
+            // Limpiar parï¿½metro de URL
             const url = new URL(window.location.href);
             url.searchParams.delete('preview');
             window.history.replaceState({}, document.title, url.toString());
         });
         <?php endif; ?>
         
-        // Inicialización
+        // Inicializaciï¿½n
         document.addEventListener('DOMContentLoaded', function() {
             calcularEdad();
             actualizarGrupos();
