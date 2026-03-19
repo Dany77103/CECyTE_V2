@@ -1,5 +1,5 @@
 <?php
-// Incluir configuración común
+// Incluir configuración común (Lógica intacta)
 $configPath = __DIR__ . '/config.php';
 if (file_exists($configPath)) {
     require_once $configPath;
@@ -15,82 +15,262 @@ $con = conectarDB();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CECYTE - Sistema de Registro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>SGA | Sistema de Registro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
-            --verde-oscuro: #1a5330; --verde-principal: #2e7d32;
-            --verde-medio: #4caf50; --verde-claro: #8bc34a;
-            --bg-light: #f1f8e9;
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --accent: #8bc34a;
+            --bg: #f0f2f5;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
-        body { background-color: var(--bg-light); }
-        .main-header { background: white; padding: 20px 40px; border-bottom: 3px solid var(--verde-medio); }
-        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 40px; }
-        .card-box { background: white; padding: 25px; border-radius: 15px; border-top: 5px solid var(--verde-principal); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .card-box i { font-size: 2.5rem; color: var(--verde-principal); margin-bottom: 15px; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.5; }
+
+        /* --- HEADER SGA --- */
+        .header {
+            background: var(--white);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--primary-dark); font-weight: 800; }
+        
+        .btn-logout {
+            padding: 8px 16px; border-radius: 8px; background: #fee2e2; color: #dc2626;
+            text-decoration: none; font-weight: 700; font-size: 0.85rem; transition: 0.3s;
+        }
+        .btn-logout:hover { background: #dc2626; color: white; }
+
+        .container { max-width: 1200px; margin: 2.5rem auto; padding: 0 20px; }
+
+        .section-title { margin-bottom: 35px; }
+        .section-title h2 { font-size: 1.8rem; font-weight: 800; color: var(--primary-dark); }
+        .section-title p { color: var(--text-muted); }
+
+        /* --- GRID DE REGISTROS --- */
+        .grid-registros {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* --- CARD STYLE --- */
+        .card-registro {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .card-registro:hover { transform: translateY(-10px); }
+
+        /* Imagen/Ilustración en la cartilla */
+        .card-image {
+            height: 140px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .card-image img {
+            width: 100px;
+            height: auto;
+            opacity: 0.9;
+        }
+        .card-image i {
+            font-size: 3.5rem;
+            color: var(--primary);
+            opacity: 0.2;
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+        }
+
+        .card-content { padding: 20px; flex-grow: 1; }
+        .card-content h5 { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+        .card-content p { font-size: 0.85rem; color: var(--text-muted); min-height: 40px; }
+
+        /* --- ACCIONES --- */
+        .card-actions { padding: 0 20px 20px; }
+        .btn-action {
+            display: block; width: 100%; padding: 12px; border-radius: 12px;
+            text-align: center; font-weight: 700; font-size: 0.85rem;
+            text-decoration: none; transition: 0.3s;
+            background: var(--bg); color: var(--text-main);
+        }
+        .btn-action:hover { background: var(--primary); color: white; }
+
+        /* Colores de acento por categoría */
+        .accent-bar { height: 4px; width: 100%; background: var(--primary); }
+
+        @media (max-width: 600px) {
+            .grid-registros { grid-template-columns: 1fr; }
+        }
+        
+        .animate-fade { opacity: 0; transform: translateY(20px); }
     </style>
 </head>
 <body>
 
-    <header class="main-header d-flex justify-content-between align-items-center">
-        <h4 class="text-success fw-bold">SISTEMA DE REGISTRO - CECyTE</h4>
-        <a href="logout.php" class="btn btn-danger">Cerrar Sesión</a>
-    </header>
+<header class="header">
+    <a href="main.php" class="header-brand">
+        <i class="fas fa-graduation-cap"></i>
+        <span>SGA CECYTE</span>
+    </a>
+    <a href="logout.php" class="btn-logout">
+        <i class="fas fa-sign-out-alt"></i> Salir
+    </a>
+</header>
 
-    <div class="card-container">
-        <div class="card-box" style="border-top-color: var(--verde-oscuro);">
-            <i class="fas fa-user-graduate"></i>
-            <h5>Alta de Alumnos</h5>
-            <p>Registra nuevos alumnos con su información completa.</p>
-            <a href="nuevo_alumno.php" class="btn btn-primary">Registrar Alumno</a>
-        </div>
-
-        <div class="card-box" style="border-top-color: var(--verde-principal);">
-            <i class="fas fa-chalkboard-teacher"></i>
-            <h5>Alta de Personal</h5>
-            <p>Maestros y administrativo.</p>
-            <a href="nuevo_maestro.php" class="btn btn-success">Registrar Personal</a>
-        </div>
-
-        <div class="card-box" style="border-top-color: var(--verde-medio);">
-            <i class="fas fa-briefcase"></i>
-            <h5>Datos Laborales</h5>
-            <p>Gestión de información profesional.</p>
-            <a href="datos_laborales.php" class="btn btn-info text-white">Ver Laborales</a>
-        </div>
-
-        <div class="card-box" style="border-top-color: var(--verde-claro);">
-            <i class="fas fa-graduation-cap"></i>
-            <h5>Datos Académicos</h5>
-            <p>Formación y certificaciones.</p>
-            <a href="datos_academicos.php" class="btn btn-warning">Ver Académicos</a>
-        </div>
-
-        <div class="card-box" style="border-top-color: #66bb6a;">
-            <i class="fas fa-history"></i>
-            <h5>Historial Académico</h5>
-            <p>Registro del historial completo.</p>
-            <a href="historial_academico.php" class="btn btn-danger">Ir al Historial</a>
-        </div>
-
-        <div class="card-box" style="border-top-color: #a5d6a7;">
-            <i class="fas fa-check-circle"></i>
-            <h5>Calificaciones</h5>
-            <p>Asistencia y evaluaciones.</p>
-            <a href="seleccionar_clase.php" class="btn btn-secondary">Gestionar</a>
-        </div>
-
-        <div class="card-box" style="border-top-color: var(--verde-oscuro);">
-            <i class="fas fa-calendar-alt"></i>
-            <h5>Horarios</h5>
-            <p>Gestión de horarios de clase.</p>
-            <a href="horario_maestros_captura.php" class="btn btn-dark">Ver Horarios</a>
-        </div>
+<div class="container">
+    
+    <div class="section-title">
+        <h2>Panel de Administración</h2>
+        <p>Gestión integral de alumnos, personal y registros académicos del campus.</p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="grid-registros">
+        
+        <div class="card-registro animate-fade">
+            <div class="card-image">
+                <img src="https://illustrations.popsy.co/green/student-going-to-school.svg" alt="Alumnos">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="accent-bar" style="background: #2e7d32;"></div>
+            <div class="card-content">
+                <h5>Alta de Alumnos</h5>
+                <p>Inscripción y registro de nuevos estudiantes al sistema.</p>
+            </div>
+            <div class="card-actions">
+                <a href="nuevo_alumno.php" class="btn-action">Registrar Alumno</a>
+            </div>
+        </div>
+
+        <div class="card-registro animate-fade">
+            <div class="card-image">
+                <img src="https://illustrations.popsy.co/green/work-from-home.svg" alt="Personal">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="accent-bar" style="background: #1b5e20;"></div>
+            <div class="card-content">
+                <h5>Alta de Personal</h5>
+                <p>Gestión de docentes y personal administrativo.</p>
+            </div>
+            <div class="card-actions">
+                <a href="nuevo_maestro.php" class="btn-action">Registrar Personal</a>
+            </div>
+        </div>
+
+        <div class="card-registro animate-fade">
+            <div class="card-image">
+                <img src="https://illustrations.popsy.co/green/business-analysis.svg" alt="Laboral">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="accent-bar" style="background: #4caf50;"></div>
+            <div class="card-content">
+                <h5>Datos Laborales</h5>
+                <p>Información contractual y perfiles profesionales.</p>
+            </div>
+            <div class="card-actions">
+                <a href="datos_laborales.php" class="btn-action">Ver Laborales</a>
+            </div>
+        </div>
+
+        <div class="card-registro animate-fade">
+            <div class="card-image">
+                <img src="https://illustrations.popsy.co/green/success.svg" alt="Académicos">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="accent-bar" style="background: #8bc34a;"></div>
+            <div class="card-content">
+                <h5>Datos Académicos</h5>
+                <p>Historial de formación y grados obtenidos.</p>
+            </div>
+            <div class="card-actions">
+                <a href="datos_academicos.php" class="btn-action">Ver Académicos</a>
+            </div>
+        </div>
+
+        <div class="card-registro animate-fade">
+            <div class="card-image">
+                <img src="https://illustrations.popsy.co/green/data-analysis.svg" alt="Historial">
+                <i class="fas fa-history"></i>
+            </div>
+            <div class="accent-bar" style="background: #ef5350;"></div>
+            <div class="card-content">
+                <h5>Historial Académico</h5>
+                <p>Consulta de trayectoria y kardex de estudiantes.</p>
+            </div>
+            <div class="card-actions">
+                <a href="historial_academico.php" class="btn-action">Ir al Historial</a>
+            </div>
+        </div>
+
+        <div class="card-registro animate-fade">
+            <div class="card-image">
+                <img src="https://illustrations.popsy.co/green/creative-work.svg" alt="Notas">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="accent-bar" style="background: #ff9800;"></div>
+            <div class="card-content">
+                <h5>Calificaciones</h5>
+                <p>Control de evaluaciones y reportes de aprovechamiento.</p>
+            </div>
+            <div class="card-actions">
+                <a href="seleccionar_clase.php" class="btn-action">Gestionar Notas</a>
+            </div>
+        </div>
+
+        <div class="card-registro animate-fade">
+            <div class="card-image">
+                <img src="https://illustrations.popsy.co/green/calendar.svg" alt="Horarios">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="accent-bar" style="background: #37474f;"></div>
+            <div class="card-content">
+                <h5>Horarios</h5>
+                <p>Planificación de carga horaria y disponibilidad.</p>
+            </div>
+            <div class="card-actions">
+                <a href="horario_maestros_captura.php" class="btn-action">Ver Horarios</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.8rem;">
+    SGA CECYTE Santa Catarina &copy; 2026
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.querySelectorAll('.animate-fade');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 80);
+        });
+    });
+</script>
+
 </body>
 </html>

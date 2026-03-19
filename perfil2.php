@@ -1,15 +1,15 @@
 <?php
 session_start();
 
-// Verificar si el usuario ha iniciado sesión
+// Verificar si el usuario ha iniciado sesiï¿½n
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header('Location: index.php');
     exit;
 }
 
-// Simulación de datos del usuario
+// Simulaciï¿½n de datos del usuario
 $user_data = [
-    'nombre' => $_SESSION['nombre'] ?? 'Juan Pérez',
+    'nombre' => $_SESSION['nombre'] ?? 'Juan Pï¿½rez',
     'email' => $_SESSION['email'] ?? 'juan.perez@cecyte.edu.mx',
     'usuario' => $_SESSION['username'] ?? 'jperez',
     'rol' => $_SESSION['rol'] ?? 'Profesor',
@@ -500,7 +500,7 @@ $user_data = [
                 
                 <!-- Cuerpo del perfil -->
                 <div class="profile-body">
-                    <!-- Información personal -->
+                    <!-- Informaciï¿½n personal -->
                     <div class="info-section">
                         <h4 class="info-title">
                             <i class='bx bx-info-circle'></i>
@@ -535,7 +535,7 @@ $user_data = [
                         </div>
                     </div>
                     
-                    <!-- Información institucional -->
+                    <!-- Informaciï¿½n institucional -->
                     <div class="info-section">
                         <h4 class="info-title">
                             <i class='bx bx-building'></i>
@@ -567,7 +567,7 @@ $user_data = [
                         </div>
                     </div>
                     
-                    <!-- Estadísticas -->
+                    <!-- Estadï¿½sticas -->
                     <div class="info-section">
                         <h4 class="info-title">
                             <i class='bx bx-stats'></i>
@@ -652,14 +652,14 @@ $user_data = [
                         <a href="contacto.php">Contacto</a>
                     </div>
                     <p class="mt-2 mb-0" style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
-                        © <?php echo date("Y"); ?> CECyTE Santa Catarina N.L.
+                        ï¿½ <?php echo date("Y"); ?> CECyTE Santa Catarina N.L.
                     </p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Modal para cambiar contraseña -->
+    <!-- Modal para cambiar contraseï¿½a -->
     <div class="modal fade" id="cambiarPasswordModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -697,7 +697,7 @@ $user_data = [
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <script>
-        // Validación para cambiar contraseña
+        // Validaciï¿½n para cambiar contraseï¿½a
         document.getElementById('guardarPassword').addEventListener('click', function() {
             const currentPass = document.getElementById('currentPassword').value;
             const newPass = document.getElementById('newPassword').value;
@@ -709,34 +709,34 @@ $user_data = [
             }
             
             if (newPass !== confirmPass) {
-                alert('Las nuevas contraseñas no coinciden.');
+                alert('Las nuevas contraseï¿½as no coinciden.');
                 return;
             }
             
             if (newPass.length < 8) {
-                alert('La nueva contraseña debe tener al menos 8 caracteres.');
+                alert('La nueva contraseï¿½a debe tener al menos 8 caracteres.');
                 return;
             }
             
-            // Validación de seguridad básica
+            // Validaciï¿½n de seguridad bï¿½sica
             const hasUpperCase = /[A-Z]/.test(newPass);
             const hasLowerCase = /[a-z]/.test(newPass);
             const hasNumbers = /\d/.test(newPass);
             
             if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
-                alert('La contraseña debe incluir mayúsculas, minúsculas y números.');
+                alert('La contraseï¿½a debe incluir mayï¿½sculas, minï¿½sculas y nï¿½meros.');
                 return;
             }
             
-            // Aquí iría la llamada AJAX para cambiar la contraseña
-            // Por ahora solo mostramos un mensaje de éxito
-            alert('Contraseña cambiada exitosamente.');
+            // Aquï¿½ irï¿½a la llamada AJAX para cambiar la contraseï¿½a
+            // Por ahora solo mostramos un mensaje de ï¿½xito
+            alert('Contraseï¿½a cambiada exitosamente.');
             document.getElementById('cambiarPasswordForm').reset();
             const modal = bootstrap.Modal.getInstance(document.getElementById('cambiarPasswordModal'));
             modal.hide();
         });
         
-        // Efecto de animación en las tarjetas de estadísticas al cargar
+        // Efecto de animaciï¿½n en las tarjetas de estadï¿½sticas al cargar
         document.addEventListener('DOMContentLoaded', function() {
             const statCards = document.querySelectorAll('.stat-card');
             statCards.forEach((card, index) => {

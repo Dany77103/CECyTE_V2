@@ -1,5 +1,5 @@
 <?php
-// Conexión a la base de datos usando PDO
+// Conexiï¿½n a la base de datos usando PDO
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -9,23 +9,23 @@ try {
     $con = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
     $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Error de conexión a la base de datos: " . $e->getMessage());
+    die("Error de conexiï¿½n a la base de datos: " . $e->getMessage());
 }
 
-// Función para obtener datos de la base de datos usando PDO
+// Funciï¿½n para obtener datos de la base de datos usando PDO
 function obtenerDatos($query) {
-    global $con; // Usamos la variable $con (conexión PDO)
+    global $con; // Usamos la variable $con (conexiï¿½n PDO)
     try {
         $stmt = $con->query($query);
         return $stmt->fetchAll(PDO::FETCH_ASSOC); // Devuelve los datos como un array asociativo
     } catch (PDOException $e) {
-        return []; // Devolver array vacío en caso de error
+        return []; // Devolver array vacï¿½o en caso de error
     }
 }
 
 session_start();
 
-// Verificar si el usuario ha iniciado sesión
+// Verificar si el usuario ha iniciado sesiï¿½n
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header('Location: index.php');
     exit;
@@ -44,14 +44,14 @@ $queryMaestrosActivos = "SELECT COUNT(*) AS maestrosActivos FROM datoslaboralesm
                          INNER JOIN estatus e ON e.id_estatus = dlm.id_estatus
                          WHERE e.tipoEstatus = 'activo'";
 
-// NUEVAS CONSULTAS PARA ESTADÍSTICAS ADICIONALES
+// NUEVAS CONSULTAS PARA ESTADï¿½STICAS ADICIONALES
 
-// 1. ESTADÍSTICAS GENERALES
+// 1. ESTADï¿½STICAS GENERALES
 $queryTotalAlumnos = "SELECT COUNT(*) AS total FROM alumnos";
 $queryTotalMaestros = "SELECT COUNT(*) AS total FROM maestros";
 $queryTotalCalificaciones = "SELECT COUNT(*) AS total FROM calificaciones";
 
-// 2. GÉNERO
+// 2. Gï¿½NERO
 $queryAlumnosPorGenero = "SELECT 
                             SUM(CASE WHEN genero = 'Masculino' THEN 1 ELSE 0 END) as masculino,
                             SUM(CASE WHEN genero = 'Femenino' THEN 1 ELSE 0 END) as femenino,
@@ -86,7 +86,7 @@ $queryAsistenciaPromedio = "SELECT
                             GROUP BY DATE_FORMAT(fecha, '%Y-%m')
                             ORDER BY mes DESC";
 
-// 6. NUEVAS ESTADÍSTICAS: DISCAPACIDAD
+// 6. NUEVAS ESTADï¿½STICAS: DISCAPACIDAD
 $queryAlumnosConDiscapacidad = "
  SELECT COUNT(*) AS total FROM alumnos WHERE id_discapacidad = 1";
 $queryTiposDiscapacidad = "SELECT a.id_discapacidad, COUNT(*) AS cantidad FROM alumnos a
@@ -94,13 +94,13 @@ $queryTiposDiscapacidad = "SELECT a.id_discapacidad, COUNT(*) AS cantidad FROM a
                           WHERE a.id_discapacidad = 1  AND d.tipo_discapacidad IS NOT NULL 
                           GROUP BY d.tipo_discapacidad ORDER BY cantidad DESC";
 
-// 7. NUEVAS ESTADÍSTICAS: DATOS LABORALES MAESTROS
+// 7. NUEVAS ESTADï¿½STICAS: DATOS LABORALES MAESTROS
 $queryMaestrosPorContrato = "SELECT tipo_contrato, COUNT(*) AS cantidad FROM datoslaboralesmaestros 
                             GROUP BY tipo_contrato ORDER BY cantidad DESC";
 $queryMaestrosPorDepartamento = "SELECT departamento, COUNT(*) as cantidad FROM datoslaboralesmaestros 
                                 WHERE departamento IS NOT NULL GROUP BY departamento ORDER BY cantidad DESC";
 
-// 8. NUEVAS ESTADÍSTICAS: EDADES DE ALUMNOS
+// 8. NUEVAS ESTADï¿½STICAS: EDADES DE ALUMNOS
 $queryAlumnosPorEdad = "SELECT 
     CASE 
         WHEN edad < 15 THEN 'Menor 15'
@@ -123,10 +123,10 @@ ORDER BY
         ELSE 6
     END";
 
-// 9. NUEVAS ESTADÍSTICAS: ALUMNOS POR TURNO
+// 9. NUEVAS ESTADï¿½STICAS: ALUMNOS POR TURNO
 $queryAlumnosPorTurno = "SELECT turno, COUNT(*) as cantidad FROM alumnos WHERE turno IS NOT NULL GROUP BY turno ORDER BY cantidad DESC";
 
-// 10. NUEVAS ESTADÍSTICAS: ESTADO CIVIL
+// 10. NUEVAS ESTADï¿½STICAS: ESTADO CIVIL
 $queryAlumnosEstadoCivil = "SELECT estado_civil, COUNT(*) as cantidad FROM alumnos 
                            WHERE estado_civil IS NOT NULL GROUP BY estado_civil ORDER BY cantidad DESC";
 
@@ -159,7 +159,7 @@ $alumnosEstadoCivil = obtenerDatos($queryAlumnosEstadoCivil);
 // Calcular porcentajes
 $porcentajeDiscapacidad = $totalAlumnos > 0 ? round(($alumnosConDiscapacidad / $totalAlumnos) * 100, 2) : 0;
 
-// Preparar datos para gráficas
+// Preparar datos para grï¿½ficas
 $gruposLabels = array_column($alumnosPorGrupo, 'grupo');
 $gruposData = array_column($alumnosPorGrupo, 'cantidad');
 
@@ -169,7 +169,7 @@ $semestresData = array_column($alumnosPorSemestre, 'cantidad');
 $mesesLabels = array_column($asistenciaMensual, 'mes');
 $asistenciaData = array_column($asistenciaMensual, 'asistencia_promedio');
 
-// Preparar datos para nuevas gráficas
+// Preparar datos para nuevas grï¿½ficas
 $discapacidadLabels = array_column($tiposDiscapacidad, 'tipo_discapacidad');
 $discapacidadData = array_column($tiposDiscapacidad, 'cantidad');
 
@@ -256,7 +256,7 @@ $dataJSON = json_encode([
             --sidebar-collapsed: 80px;
             
             /* PALETA DE 4 TONOS VERDE - INSPIRADA EN CECYTE */
-            --verde-oscuro: #1a5330;      /* Verde más oscuro */
+            --verde-oscuro: #1a5330;      /* Verde mï¿½s oscuro */
             --verde-principal: #2e7d32;   /* Verde principal */
             --verde-medio: #4caf50;       /* Verde medio */
             --verde-claro: #8bc34a;       /* Verde claro */
@@ -266,7 +266,7 @@ $dataJSON = json_encode([
             --hover-color: #4caf50;
         }
         
-        /* CORRECCIÓN PARA EL LAYOUT */
+        /* CORRECCIï¿½N PARA EL LAYOUT */
         * {
             margin: 0;
             padding: 0;
@@ -550,7 +550,7 @@ $dataJSON = json_encode([
             border-bottom: 3px solid var(--verde-medio);
         }
         
-        /* Estilos para el sistema de estadísticas */
+        /* Estilos para el sistema de estadï¿½sticas */
         .stats-container {
             padding: 30px;
         }
@@ -563,7 +563,7 @@ $dataJSON = json_encode([
             padding-bottom: 15px;
         }
         
-        /* Tarjetas de estadísticas principales */
+        /* Tarjetas de estadï¿½sticas principales */
         .main-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -655,7 +655,7 @@ $dataJSON = json_encode([
             font-weight: 500;
         }
         
-        /* Sección de estadísticas especiales */
+        /* Secciï¿½n de estadï¿½sticas especiales */
         .special-stats-section {
             margin-top: 40px;
             margin-bottom: 40px;
@@ -669,7 +669,7 @@ $dataJSON = json_encode([
             border-bottom: 3px solid var(--verde-claro);
         }
         
-        /* Tarjetas de estadísticas especiales */
+        /* Tarjetas de estadï¿½sticas especiales */
         .special-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -765,7 +765,7 @@ $dataJSON = json_encode([
             margin-top: 5px;
         }
         
-        /* Gráficas adicionales */
+        /* Grï¿½ficas adicionales */
         .additional-charts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -783,7 +783,7 @@ $dataJSON = json_encode([
             }
         }
         
-        /* Pestañas para categorías */
+        /* Pestaï¿½as para categorï¿½as */
         .stats-tabs {
             margin-bottom: 30px;
         }
@@ -810,7 +810,7 @@ $dataJSON = json_encode([
             border: 1px solid rgba(139, 195, 74, 0.2);
         }
         
-        /* Controles de gráficas */
+        /* Controles de grï¿½ficas */
         .chart-controls {
             background: white;
             border-radius: 15px;
@@ -838,7 +838,7 @@ $dataJSON = json_encode([
             color: var(--verde-oscuro);
         }
         
-        /* Contenedor de gráficas */
+        /* Contenedor de grï¿½ficas */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
@@ -930,7 +930,7 @@ $dataJSON = json_encode([
             background-color: #f9fdf7;
         }
         
-        /* Tabla de estadísticas detalladas */
+        /* Tabla de estadï¿½sticas detalladas */
         .stats-table-container {
             background: white;
             border-radius: 15px;
@@ -1049,7 +1049,7 @@ $dataJSON = json_encode([
             border-color: var(--verde-principal);
         }
         
-        /* Botón dropdown header */
+        /* Botï¿½n dropdown header */
         .btn-outline-success {
             color: var(--verde-principal);
             border-color: var(--verde-principal);
@@ -1162,7 +1162,7 @@ $dataJSON = json_encode([
             }
         }
         
-        /* Clase para mostrar el sidebar en móviles */
+        /* Clase para mostrar el sidebar en mï¿½viles */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -1178,7 +1178,7 @@ $dataJSON = json_encode([
             display: block;
         }
         
-        /* Botón para mostrar sidebar en móviles */
+        /* Botï¿½n para mostrar sidebar en mï¿½viles */
         .mobile-menu-btn {
             display: none;
             position: fixed;
@@ -1202,12 +1202,12 @@ $dataJSON = json_encode([
     </style>
 </head>
 <body>
-    <!-- Botón para mostrar sidebar en móviles -->
+    <!-- Botï¿½n para mostrar sidebar en mï¿½viles -->
     <button class="mobile-menu-btn" id="mobileMenuBtn">
         <i class='bx bx-menu'></i>
     </button>
     
-    <!-- Overlay para móviles -->
+    <!-- Overlay para mï¿½viles -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
     <div class="main-container">
@@ -1221,7 +1221,7 @@ $dataJSON = json_encode([
             </div>
             
             <ul class="sidebar-menu">
-                <!-- Barra de búsqueda -->
+                <!-- Barra de bï¿½squeda -->
                 <li class="nav-item">
                     <div class="nav-link search-box">
                         <i class='bx bx-search'></i>
@@ -1230,7 +1230,7 @@ $dataJSON = json_encode([
                     </div>
                 </li>
                 
-                <!-- Menú principal -->
+                <!-- Menï¿½ principal -->
                 <li class="nav-item">
                     <a href="main.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'main.php' ? 'active' : ''; ?>">
                         <i class='bx bx-home-alt-2'></i>
@@ -1311,7 +1311,7 @@ $dataJSON = json_encode([
                 </li>
             </ul>
             
-            <!-- Sección de usuario -->
+            <!-- Secciï¿½n de usuario -->
             <div class="user-section">
                 <a href="logout.php" class="user-link">
                     <i class='bx bx-log-out-circle'></i>
@@ -1345,13 +1345,13 @@ $dataJSON = json_encode([
                 </div>
             </header>
             
-            <!-- Contenido de la página -->
+            <!-- Contenido de la pï¿½gina -->
             <main class="stats-container">
                 <h1 class="page-title">
                     <i class='bx bx-chart'></i> Sistema de Estad&iacute;sticas
                 </h1>
                 
-                <!-- Estadísticas principales -->
+                <!-- Estadï¿½sticas principales -->
                 <div class="main-stats-grid">
                     <div class="stat-card-main alumnos">
                         <i class="fas fa-user-graduate stat-icon"></i>
@@ -1378,7 +1378,7 @@ $dataJSON = json_encode([
                     </div>
                 </div>
                 
-                <!-- NUEVA SECCIÓN: Estadísticas Especiales -->
+                <!-- NUEVA SECCIï¿½N: Estadï¿½sticas Especiales -->
                 <div class="special-stats-section">
                     <h3 class="section-title">
                         <i class="fas fa-chart-pie"></i> Estad&iacute;sticas Especiales
@@ -1422,7 +1422,7 @@ $dataJSON = json_encode([
                                 <div class="special-stat-number"><?php echo count($alumnosPorEdad); ?></div>
                                 <div class="special-stat-label">Rangos de Edad</div>
                                 <div class="special-stat-subtext">
-                                    Distribución demográfica
+                                    Distribuciï¿½n demogrï¿½fica
                                 </div>
                             </div>
                         </div>
@@ -1436,14 +1436,14 @@ $dataJSON = json_encode([
                                 <div class="special-stat-number"><?php echo count($alumnosPorTurno); ?></div>
                                 <div class="special-stat-label">Turnos Activos</div>
                                 <div class="special-stat-subtext">
-                                    Distribución por horario
+                                    Distribuciï¿½n por horario
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Pestañas para diferentes categorías -->
+                <!-- Pestaï¿½as para diferentes categorï¿½as -->
                 <div class="stats-tabs">
                     <ul class="nav nav-tabs" id="statsTabs" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -1463,17 +1463,17 @@ $dataJSON = json_encode([
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="demografica-tab" data-bs-toggle="tab" data-bs-target="#demografica" type="button" role="tab">
-                                <i class="fas fa-users me-2"></i>Demográfica
+                                <i class="fas fa-users me-2"></i>Demogrï¿½fica
                             </button>
                         </li>
                     </ul>
                     
                     <div class="tab-content" id="statsTabsContent">
-                        <!-- Pestaña General -->
+                        <!-- Pestaï¿½a General -->
                         <div class="tab-pane fade show active" id="general" role="tabpanel">
                             <h4 class="chart-title mb-4">Estad&iacute;sticas Generales</h4>
                             
-                            <!-- Controles de gráficas -->
+                            <!-- Controles de grï¿½ficas -->
                             <div class="chart-controls">
                                 <h4 class="chart-title">Tipo de Gr&aacute;fica</h4>
                                 <div class="chart-type-selector">
@@ -1497,9 +1497,9 @@ $dataJSON = json_encode([
                                 </div>
                             </div>
                             
-                            <!-- Gráficas principales -->
+                            <!-- Grï¿½ficas principales -->
                             <div class="charts-grid">
-                                <!-- Gráfica 1: Estado de alumnos -->
+                                <!-- Grï¿½fica 1: Estado de alumnos -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Estado de Alumnos y Maestros</h5>
@@ -1517,7 +1517,7 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Gráfica 2: Distribución por género -->
+                                <!-- Grï¿½fica 2: Distribuciï¿½n por gï¿½nero -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Distribuci&oacute;n de Alumnos por G&eacute;nero</h5>
@@ -1535,7 +1535,7 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Gráfica 3: Alumnos por grupo -->
+                                <!-- Grï¿½fica 3: Alumnos por grupo -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Alumnos por Grupo (Top 10)</h5>
@@ -1553,7 +1553,7 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Gráfica 4: Asistencia mensual -->
+                                <!-- Grï¿½fica 4: Asistencia mensual -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Asistencia Promedio Mensual</h5>
@@ -1571,7 +1571,7 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Nueva Gráfica: Calificaciones por rango -->
+                                <!-- Nueva Grï¿½fica: Calificaciones por rango -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Calificaciones por Rango</h5>
@@ -1589,7 +1589,7 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Nueva Gráfica: Alumnos por semestre -->
+                                <!-- Nueva Grï¿½fica: Alumnos por semestre -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Alumnos por Semestre</h5>
@@ -1609,7 +1609,7 @@ $dataJSON = json_encode([
                             </div>
                         </div>
                         
-                        <!-- Pestaña Discapacidad -->
+                        <!-- Pestaï¿½a Discapacidad -->
                         <div class="tab-pane fade" id="discapacidad" role="tabpanel">
                             <h4 class="chart-title mb-4">Estad&iacute;sticas de Discapacidad</h4>
                             
@@ -1638,9 +1638,9 @@ $dataJSON = json_encode([
                                 </ul>
                             </div>
                             
-                            <!-- Gráficas de discapacidad -->
+                            <!-- Grï¿½ficas de discapacidad -->
                             <div class="additional-charts-grid">
-                                <!-- Gráfica de tipos de discapacidad -->
+                                <!-- Grï¿½fica de tipos de discapacidad -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Tipos de Discapacidad</h5>
@@ -1658,7 +1658,7 @@ $dataJSON = json_encode([
                                 <!-- Indicador de porcentaje -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
-                                        <h5 class="chart-subtitle">Proporción de Alumnos con Discapacidad</h5>
+                                        <h5 class="chart-subtitle">Proporciï¿½n de Alumnos con Discapacidad</h5>
                                     </div>
                                     <div class="chart-container">
                                         <canvas id="chartDiscapacidadProporcion"></canvas>
@@ -1668,7 +1668,7 @@ $dataJSON = json_encode([
                             
                             <!-- Tabla de tipos de discapacidad -->
                             <div class="mt-4">
-                                <h5 class="mb-3">Distribución por Tipo de Discapacidad</h5>
+                                <h5 class="mb-3">Distribuciï¿½n por Tipo de Discapacidad</h5>
                                 <div class="table-responsive">
                                     <table class="detailed-data-table">
                                         <thead>
@@ -1701,7 +1701,7 @@ $dataJSON = json_encode([
                             </div>
                         </div>
                         
-                        <!-- Pestaña Laboral -->
+                        <!-- Pestaï¿½a Laboral -->
                         <div class="tab-pane fade" id="laboral" role="tabpanel">
                             <h4 class="chart-title mb-4">Estad&iacute;sticas Laborales de Maestros</h4>
                             
@@ -1730,9 +1730,9 @@ $dataJSON = json_encode([
                                 </ul>
                             </div>
                             
-                            <!-- Gráficas laborales -->
+                            <!-- Grï¿½ficas laborales -->
                             <div class="additional-charts-grid">
-                                <!-- Gráfica de contratos -->
+                                <!-- Grï¿½fica de contratos -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Maestros por Tipo de Contrato</h5>
@@ -1747,7 +1747,7 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Gráfica de departamentos -->
+                                <!-- Grï¿½fica de departamentos -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Maestros por Departamento</h5>
@@ -1766,7 +1766,7 @@ $dataJSON = json_encode([
                             <!-- Tablas de datos laborales -->
                             <div class="row mt-4">
                                 <div class="col-md-6">
-                                    <h5 class="mb-3">Distribución por Contrato</h5>
+                                    <h5 class="mb-3">Distribuciï¿½n por Contrato</h5>
                                     <div class="table-responsive">
                                         <table class="detailed-data-table">
                                             <thead>
@@ -1792,7 +1792,7 @@ $dataJSON = json_encode([
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <h5 class="mb-3">Distribución por Departamento</h5>
+                                    <h5 class="mb-3">Distribuciï¿½n por Departamento</h5>
                                     <div class="table-responsive">
                                         <table class="detailed-data-table">
                                             <thead>
@@ -1815,14 +1815,14 @@ $dataJSON = json_encode([
                             </div>
                         </div>
                         
-                        <!-- Pestaña Demográfica -->
+                        <!-- Pestaï¿½a Demogrï¿½fica -->
                         <div class="tab-pane fade" id="demografica" role="tabpanel">
-                            <h4 class="chart-title mb-4">Estad&iacute;sticas Demográficas</h4>
+                            <h4 class="chart-title mb-4">Estad&iacute;sticas Demogrï¿½ficas</h4>
                             
-                            <!-- Resumen demográfico -->
+                            <!-- Resumen demogrï¿½fico -->
                             <div class="summary-card demografica">
                                 <h5 class="summary-card-title">
-                                    <i class="fas fa-users"></i> Resumen Demográfico
+                                    <i class="fas fa-users"></i> Resumen Demogrï¿½fico
                                 </h5>
                                 <ul class="summary-list">
                                     <li>
@@ -1834,19 +1834,19 @@ $dataJSON = json_encode([
                                         <span class="summary-value"><?php echo $totalMaestros; ?></span>
                                     </li>
                                     <li>
-                                        <span>Género alumnos (M/F):</span>
+                                        <span>Gï¿½nero alumnos (M/F):</span>
                                         <span class="summary-value"><?php echo $generoData['masculino']; ?> / <?php echo $generoData['femenino']; ?></span>
                                     </li>
                                     <li>
-                                        <span>Género maestros (M/F):</span>
+                                        <span>Gï¿½nero maestros (M/F):</span>
                                         <span class="summary-value"><?php echo $generoMaestrosData['masculino']; ?> / <?php echo $generoMaestrosData['femenino']; ?></span>
                                     </li>
                                 </ul>
                             </div>
                             
-                            <!-- Gráficas demográficas -->
+                            <!-- Grï¿½ficas demogrï¿½ficas -->
                             <div class="additional-charts-grid">
-                                <!-- Gráfica de edades -->
+                                <!-- Grï¿½fica de edades -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Alumnos por Rango de Edad</h5>
@@ -1861,7 +1861,7 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Gráfica de turnos -->
+                                <!-- Grï¿½fica de turnos -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Alumnos por Turno</h5>
@@ -1876,7 +1876,7 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Gráfica de estado civil -->
+                                <!-- Grï¿½fica de estado civil -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
                                         <h5 class="chart-subtitle">Alumnos por Estado Civil</h5>
@@ -1891,10 +1891,10 @@ $dataJSON = json_encode([
                                     </div>
                                 </div>
                                 
-                                <!-- Gráfica de género maestros -->
+                                <!-- Grï¿½fica de gï¿½nero maestros -->
                                 <div class="chart-wrapper">
                                     <div class="chart-header">
-                                        <h5 class="chart-subtitle">Maestros por Género</h5>
+                                        <h5 class="chart-subtitle">Maestros por Gï¿½nero</h5>
                                         <div class="chart-actions">
                                             <button class="btn-chart-action" onclick="descargarGrafica('chartGeneroMaestros')">
                                                 <i class="fas fa-download"></i>
@@ -1910,7 +1910,7 @@ $dataJSON = json_encode([
                     </div>
                 </div>
                 
-                <!-- Tabla de estadísticas detalladas -->
+                <!-- Tabla de estadï¿½sticas detalladas -->
                 <div class="stats-table-container">
                     <h4 class="chart-title mb-4">Estad&iacute;sticas Detalladas</h4>
                     <div class="table-responsive">
@@ -1989,7 +1989,7 @@ $dataJSON = json_encode([
                     </div>
                 </div>
                 
-                <!-- Información de actualización -->
+                <!-- Informaciï¿½n de actualizaciï¿½n -->
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
                     Las estad&iacute;sticas se actualizan autom&aacute;ticamente cada 30 minutos. &Uacute;ltima actualizaci&oacute;n: <?php echo date('d/m/Y H:i:s'); ?>
@@ -2000,7 +2000,7 @@ $dataJSON = json_encode([
             <footer class="bg-success text-white text-center py-3 mt-5">
                 <div class="container">
                     <p class="mb-1">SGA-CECyTE SANTA CATARINA N.L.</p>
-                    <p class="mb-0">© <?php echo date("Y"); ?> Sistema de Gesti&oacute;n Acad&eacute;mica. Todos los derechos reservados.</p>
+                    <p class="mb-0">ï¿½ <?php echo date("Y"); ?> Sistema de Gesti&oacute;n Acad&eacute;mica. Todos los derechos reservados.</p>
                 </div>
             </footer>
         </div>
@@ -2014,16 +2014,16 @@ $dataJSON = json_encode([
         // Datos desde PHP (convertidos a JSON)
         const data = <?php echo $dataJSON; ?>;
         
-        // Variables para almacenar instancias de gráficas
+        // Variables para almacenar instancias de grï¿½ficas
         let chartEstado, chartGenero, chartGrupos, chartAsistencia, chartCalificacionesRango, chartSemestres;
         let chartDiscapacidad, chartDiscapacidadProporcion, chartContratos, chartDepartamentos;
         let chartEdades, chartTurnos, chartEstadoCivil, chartGeneroMaestros;
         
-        // Función para inicializar todas las gráficas
+        // Funciï¿½n para inicializar todas las grï¿½ficas
         function inicializarGraficas() {
             const chartType = document.querySelector('input[name="chartType"]:checked').value;
             
-            // Destruir gráficas existentes
+            // Destruir grï¿½ficas existentes
             if (chartEstado) chartEstado.destroy();
             if (chartGenero) chartGenero.destroy();
             if (chartGrupos) chartGrupos.destroy();
@@ -2031,7 +2031,7 @@ $dataJSON = json_encode([
             if (chartCalificacionesRango) chartCalificacionesRango.destroy();
             if (chartSemestres) chartSemestres.destroy();
             
-            // Crear nuevas gráficas
+            // Crear nuevas grï¿½ficas
             crearGraficaEstado(chartType);
             crearGraficaGenero(chartType);
             crearGraficaGrupos(chartType);
@@ -2040,7 +2040,7 @@ $dataJSON = json_encode([
             crearGraficaSemestres(chartType);
         }
         
-        // Función para inicializar gráficas de discapacidad
+        // Funciï¿½n para inicializar grï¿½ficas de discapacidad
         function inicializarGraficasDiscapacidad() {
             if (chartDiscapacidad) chartDiscapacidad.destroy();
             if (chartDiscapacidadProporcion) chartDiscapacidadProporcion.destroy();
@@ -2049,7 +2049,7 @@ $dataJSON = json_encode([
             crearGraficaDiscapacidadProporcion();
         }
         
-        // Función para inicializar gráficas laborales
+        // Funciï¿½n para inicializar grï¿½ficas laborales
         function inicializarGraficasLaborales() {
             if (chartContratos) chartContratos.destroy();
             if (chartDepartamentos) chartDepartamentos.destroy();
@@ -2058,7 +2058,7 @@ $dataJSON = json_encode([
             crearGraficaDepartamentos();
         }
         
-        // Función para inicializar gráficas demográficas
+        // Funciï¿½n para inicializar grï¿½ficas demogrï¿½ficas
         function inicializarGraficasDemograficas() {
             if (chartEdades) chartEdades.destroy();
             if (chartTurnos) chartTurnos.destroy();
@@ -2071,9 +2071,9 @@ $dataJSON = json_encode([
             crearGraficaGeneroMaestros();
         }
         
-        // ===== FUNCIONES PARA CREAR GRÁFICAS =====
+        // ===== FUNCIONES PARA CREAR GRï¿½FICAS =====
         
-        // Función para crear gráfica de estado
+        // Funciï¿½n para crear grï¿½fica de estado
         function crearGraficaEstado(type) {
             const ctx = document.getElementById('chartEstado').getContext('2d');
             chartEstado = new Chart(ctx, {
@@ -2100,7 +2100,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de género
+        // Funciï¿½n para crear grï¿½fica de gï¿½nero
         function crearGraficaGenero(type) {
             const ctx = document.getElementById('chartGenero').getContext('2d');
             chartGenero = new Chart(ctx, {
@@ -2108,7 +2108,7 @@ $dataJSON = json_encode([
                 data: {
                     labels: ['Masculino', 'Femenino', 'No Especificado'],
                     datasets: [{
-                        label: 'Distribución por Género',
+                        label: 'Distribuciï¿½n por Gï¿½nero',
                         data: [data.generoMasculino, data.generoFemenino, data.generoNoEspecificado],
                         backgroundColor: [
                             'rgba(26, 83, 48, 0.7)',
@@ -2123,11 +2123,11 @@ $dataJSON = json_encode([
                         borderWidth: 2
                     }]
                 },
-                options: getChartOptions('Distribución de Alumnos por Género')
+                options: getChartOptions('Distribuciï¿½n de Alumnos por Gï¿½nero')
             });
         }
         
-        // Función para crear gráfica de grupos
+        // Funciï¿½n para crear grï¿½fica de grupos
         function crearGraficaGrupos(type) {
             const ctx = document.getElementById('chartGrupos').getContext('2d');
             chartGrupos = new Chart(ctx, {
@@ -2162,7 +2162,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de asistencia
+        // Funciï¿½n para crear grï¿½fica de asistencia
         function crearGraficaAsistencia(type) {
             const ctx = document.getElementById('chartAsistencia').getContext('2d');
             chartAsistencia = new Chart(ctx, {
@@ -2200,7 +2200,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de calificaciones por rango
+        // Funciï¿½n para crear grï¿½fica de calificaciones por rango
         function crearGraficaCalificacionesRango(type) {
             const ctx = document.getElementById('chartCalificacionesRango').getContext('2d');
             chartCalificacionesRango = new Chart(ctx, {
@@ -2234,7 +2234,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de semestres
+        // Funciï¿½n para crear grï¿½fica de semestres
         function crearGraficaSemestres(type) {
             const ctx = document.getElementById('chartSemestres').getContext('2d');
             chartSemestres = new Chart(ctx, {
@@ -2269,7 +2269,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de discapacidad
+        // Funciï¿½n para crear grï¿½fica de discapacidad
         function crearGraficaDiscapacidad() {
             const ctx = document.getElementById('chartDiscapacidad').getContext('2d');
             chartDiscapacidad = new Chart(ctx, {
@@ -2298,7 +2298,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de proporción de discapacidad
+        // Funciï¿½n para crear grï¿½fica de proporciï¿½n de discapacidad
         function crearGraficaDiscapacidadProporcion() {
             const ctx = document.getElementById('chartDiscapacidadProporcion').getContext('2d');
             const totalSinDiscapacidad = data.totalAlumnos - data.alumnosConDiscapacidad;
@@ -2340,7 +2340,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de contratos
+        // Funciï¿½n para crear grï¿½fica de contratos
         function crearGraficaContratos() {
             const ctx = document.getElementById('chartContratos').getContext('2d');
             chartContratos = new Chart(ctx, {
@@ -2370,7 +2370,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de departamentos
+        // Funciï¿½n para crear grï¿½fica de departamentos
         function crearGraficaDepartamentos() {
             const ctx = document.getElementById('chartDepartamentos').getContext('2d');
             chartDepartamentos = new Chart(ctx, {
@@ -2400,7 +2400,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de edades
+        // Funciï¿½n para crear grï¿½fica de edades
         function crearGraficaEdades() {
             const ctx = document.getElementById('chartEdades').getContext('2d');
             chartEdades = new Chart(ctx, {
@@ -2429,7 +2429,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de turnos
+        // Funciï¿½n para crear grï¿½fica de turnos
         function crearGraficaTurnos() {
             const ctx = document.getElementById('chartTurnos').getContext('2d');
             chartTurnos = new Chart(ctx, {
@@ -2457,7 +2457,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de estado civil
+        // Funciï¿½n para crear grï¿½fica de estado civil
         function crearGraficaEstadoCivil() {
             const ctx = document.getElementById('chartEstadoCivil').getContext('2d');
             chartEstadoCivil = new Chart(ctx, {
@@ -2485,7 +2485,7 @@ $dataJSON = json_encode([
             });
         }
         
-        // Función para crear gráfica de género maestros
+        // Funciï¿½n para crear grï¿½fica de gï¿½nero maestros
         function crearGraficaGeneroMaestros() {
             const ctx = document.getElementById('chartGeneroMaestros').getContext('2d');
             chartGeneroMaestros = new Chart(ctx, {
@@ -2511,11 +2511,11 @@ $dataJSON = json_encode([
                         borderWidth: 2
                     }]
                 },
-                options: getChartOptions('Maestros por Género')
+                options: getChartOptions('Maestros por Gï¿½nero')
             });
         }
         
-        // Función auxiliar para obtener opciones de gráfica
+        // Funciï¿½n auxiliar para obtener opciones de grï¿½fica
         function getChartOptions(title, customOptions = {}) {
             const defaultOptions = {
                 responsive: true,
@@ -2544,7 +2544,7 @@ $dataJSON = json_encode([
             return { ...defaultOptions, ...customOptions };
         }
         
-        // Función para descargar gráfica
+        // Funciï¿½n para descargar grï¿½fica
         function descargarGrafica(chartId) {
             const link = document.createElement('a');
             link.download = `grafica_${chartId}_${new Date().toISOString().slice(0,10)}.png`;
@@ -2552,20 +2552,20 @@ $dataJSON = json_encode([
             link.click();
         }
         
-        // Función para imprimir gráfica
+        // Funciï¿½n para imprimir grï¿½fica
         function imprimirGrafica(chartId) {
             const canvas = document.getElementById(chartId);
             const win = window.open('');
-            win.document.write('<html><head><title>Imprimir Gráfica</title></head><body>');
+            win.document.write('<html><head><title>Imprimir Grï¿½fica</title></head><body>');
             win.document.write('<img src="' + canvas.toDataURL('image/png') + '"/>');
             win.document.write('</body></html>');
             win.document.close();
             win.print();
         }
         
-        // ===== EVENT LISTENERS Y CONFIGURACIÓN =====
+        // ===== EVENT LISTENERS Y CONFIGURACIï¿½N =====
         
-        // Event listeners para cambio de tipo de gráfica
+        // Event listeners para cambio de tipo de grï¿½fica
         document.querySelectorAll('input[name="chartType"]').forEach(radio => {
             radio.addEventListener('change', inicializarGraficas);
         });
@@ -2585,7 +2585,7 @@ $dataJSON = json_encode([
             }
         });
         
-        // Control para móviles
+        // Control para mï¿½viles
         document.getElementById('mobileMenuBtn').addEventListener('click', function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -2602,13 +2602,13 @@ $dataJSON = json_encode([
             overlay.classList.remove('show');
         });
         
-        // Inicializar pestañas de Bootstrap
+        // Inicializar pestaï¿½as de Bootstrap
         const tabEls = document.querySelectorAll('#statsTabs button[data-bs-toggle="tab"]');
         tabEls.forEach(tabEl => {
             tabEl.addEventListener('shown.bs.tab', function(event) {
                 const targetId = event.target.getAttribute('data-bs-target');
                 
-                // Inicializar gráficas según la pestaña activa
+                // Inicializar grï¿½ficas segï¿½n la pestaï¿½a activa
                 switch(targetId) {
                     case '#general':
                         inicializarGraficas();
@@ -2634,7 +2634,7 @@ $dataJSON = json_encode([
                 });
                 this.classList.add('active');
                 
-                // En móviles, cerrar el sidebar después de hacer clic
+                // En mï¿½viles, cerrar el sidebar despuï¿½s de hacer clic
                 if (window.innerWidth <= 992) {
                     const sidebar = document.getElementById('sidebar');
                     const overlay = document.getElementById('sidebarOverlay');
@@ -2658,7 +2658,7 @@ $dataJSON = json_encode([
             });
         });
         
-        // Auto-colapsar en móviles
+        // Auto-colapsar en mï¿½viles
         function handleResize() {
             const sidebar = document.getElementById('sidebar');
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -2679,15 +2679,15 @@ $dataJSON = json_encode([
         window.addEventListener('resize', handleResize);
         window.addEventListener('load', handleResize);
         
-        // Inicializar gráficas al cargar la página
+        // Inicializar grï¿½ficas al cargar la pï¿½gina
         document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar gráficas generales
+            // Inicializar grï¿½ficas generales
             inicializarGraficas();
             
             // Aplicar handleResize al cargar
             handleResize();
             
-            // Animación de las tarjetas de estadísticas
+            // Animaciï¿½n de las tarjetas de estadï¿½sticas
             document.querySelectorAll('.stat-card-main').forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '0';
@@ -2701,7 +2701,7 @@ $dataJSON = json_encode([
                 }, index * 200);
             });
             
-            // Animación de tarjetas especiales
+            // Animaciï¿½n de tarjetas especiales
             document.querySelectorAll('.special-stat-card').forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '0';
@@ -2715,14 +2715,14 @@ $dataJSON = json_encode([
                 }, index * 150 + 400);
             });
             
-            // Actualizar estadísticas cada 5 minutos
+            // Actualizar estadï¿½sticas cada 5 minutos
             setInterval(() => {
-                console.log('Actualizando estadísticas...');
-                // Aquí podrías hacer una llamada AJAX para actualizar datos
+                console.log('Actualizando estadï¿½sticas...');
+                // Aquï¿½ podrï¿½as hacer una llamada AJAX para actualizar datos
             }, 300000);
         });
         
-        // Efecto hover para tarjetas de estadísticas
+        // Efecto hover para tarjetas de estadï¿½sticas
         document.querySelectorAll('.stat-card-main').forEach(card => {
             card.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-5px)';
