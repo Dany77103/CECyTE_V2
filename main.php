@@ -257,7 +257,7 @@ require_once 'conexion.php';
                 <p>Administración de matrículas y datos escolares</p>
             </a>
             
-            <a href="captura_horario_maestros.php" class="menu-card">
+            <a href="horarios.php" class="menu-card">
                 <i class="fa-solid fa-calendar-days"></i>
                 <h3>Captura de Horarios</h3>
                 <p>Asignación y gestión de tiempos docentes</p>
@@ -291,6 +291,12 @@ require_once 'conexion.php';
                 <i class="fa-solid fa-list-check"></i>
                 <h3>Asistencia y Calif.</h3>
                 <p>Registro de pases de lista y evaluaciones</p>
+            </a>
+
+            <a href="consulta_calificaciones_admin.php" class="menu-card">
+                <i class="fa-solid fa-spell-check"></i>
+                <h3>Consulta Calificaciones</h3>
+                <p>Ver historial académico y promedios por grupo</p>
             </a>
             
             <a href="consulta_asistencia_alumnos.php" class="menu-card">
