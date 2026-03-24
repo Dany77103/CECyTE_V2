@@ -107,10 +107,20 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
         <div class="col-lg-4 col-md-6">
             <a href="consulta_horarios.php" class="card-link">
+                <div class="card-selector p-5 text-center shadow-sm">
+                    <i class='bx bx-calendar-check'></i>
+                    <h4>Consulta por Grupo</h4>
+                    <p class="text-muted">Vista final de horarios, impresión y exportación para alumnos.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <a href="consulta_horario_maestro.php" class="card-link">
                 <div class="card-selector p-5 text-center shadow-sm" style="background: linear-gradient(to bottom, #ffffff, #f9fffb);">
-                    <i class='bx bx-calendar-check' style="color: var(--verde-secundario);"></i>
-                    <h4>Consulta de Horarios</h4>
-                    <p class="text-muted">Vista final de horarios, impresión y exportación para alumnos y personal.</p>
+                    <i class='bx bx-user-voice' style="color: var(--verde-secundario);"></i>
+                    <h4>Consulta Horario Maestro</h4>
+                    <p class="text-muted">Visualización de la agenda individual de clases para cada docente.</p>
                 </div>
             </a>
         </div>

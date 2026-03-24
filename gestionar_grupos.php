@@ -335,10 +335,25 @@ $total_alumnos_grupos = $con->query("SELECT COUNT(DISTINCT a.id_alumno) FROM gru
                                 </span>
                             </td>
                             <td>
-                                <a href="ver_grupo.php?id=<?= $g['id_grupo'] ?>" class="action-icon bg-view"><i class="fas fa-eye"></i></a>
-                                <a href="editar_grupo.php?id=<?= $g['id_grupo'] ?>" class="action-icon bg-edit"><i class="fas fa-edit"></i></a>
-                                <a href="asignar_alumnos_grupo.php?id_grupo=<?= $g['id_grupo'] ?>" class="action-icon bg-assign" style="background: #10b981;"><i class="fas fa-user-plus"></i></a>
-                            </td>
+    <a href="ver_grupo.php?id=<?= $g['id_grupo'] ?>" 
+       class="action-icon bg-view" 
+       title="Ver Detalles">
+       <i class="fas fa-eye"></i>
+    </a>
+
+    <a href="editar_grupo_2.php?id=<?= $g['id_grupo'] ?>" 
+       class="action-icon bg-edit" 
+       title="Editar Grupo">
+       <i class="fas fa-edit"></i>
+    </a>
+
+    <a href="asignar_alumnos_grupo.php?id_grupo=<?= $g['id_grupo'] ?>" 
+   class="action-icon bg-assign" 
+   style="background: #10b981;" 
+   title="Asignar Alumnos">
+   <i class="fas fa-user-plus"></i>
+</a>
+</td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>

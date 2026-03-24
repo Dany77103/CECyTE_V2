@@ -52,6 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_grupo'])) {
         }
         $con->commit();
         $_SESSION['mensaje'] = "Horario actualizado.";
+        // CAMBIO AQUÍ: Redirigir a la consulta en lugar de la captura
+        header("Location: consulta_horarios.php?grupo=" . $id_grupo);
+        exit();
     } catch (Exception $e) {
         $con->rollBack();
         $_SESSION['error'] = "Error: " . $e->getMessage();

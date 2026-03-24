@@ -35,10 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_maestro'])) {
     $periodo = $_POST['periodo'];
     
     try {
-        // Iniciamos transacción para evitar pérdida de datos si algo falla
         $con->beginTransaction();
 
-        // Eliminar registros previos de este maestro y periodo para reemplazarlos
+        // Eliminar registros previos de este maestro y periodo
         $delete_stmt = $con->prepare("DELETE FROM horarios_maestros WHERE id_maestro = ? AND periodo = ?");
         $delete_stmt->execute([$id_maestro, $periodo]);
 
@@ -50,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_maestro'])) {
         if (isset($_POST['horario'])) {
             foreach ($_POST['horario'] as $dia => $bloques) {
                 foreach ($bloques as $idx => $datos) {
-                    // Solo guardamos si se seleccionó una materia
                     if (!empty($datos['materia'])) {
                         $hora = $bloques_horarios[$idx];
                         $materia = intval($datos['materia']);
@@ -75,14 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_maestro'])) {
         $con->commit();
         $_SESSION['mensaje'] = "Horario guardado exitosamente";
         
-        // BORRA la línea que decía header("Location: horario_maestros_captura.php...");
-        // Y PEGA ESTO EN SU LUGAR:
-        $self = basename($_SERVER['PHP_SELF']); 
-        header("Location: " . $self . "?maestro=" . $id_maestro);
+        // --- CAMBIO SOLICITADO AQUÍ ---
+        // Redirigir a la consulta del maestro recién guardado
+        header("Location: consulta_horario_maestro.php?maestro=" . $id_maestro);
         exit();
 
     } catch (Exception $e) {
-        $con->rollBack();
+        if ($con->inTransaction()) $con->rollBack();
         $_SESSION['error'] = "Error al guardar: " . $e->getMessage();
     }
 }
@@ -95,14 +92,13 @@ $materias = $con->query("SELECT * FROM materias ORDER BY materia")->fetchAll(PDO
 $grupos = $con->query("SELECT * FROM grupos WHERE activo = 1 ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 $aulas = $con->query("SELECT * FROM aulas WHERE activo = 1 ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 
-// 4. OBTENER HORARIO ACTUAL (PARA MOSTRAR LO YA GUARDADO)
+// 4. OBTENER HORARIO ACTUAL
 $horario_actual = [];
 if (isset($_GET['maestro'])) {
     $id_sel = intval($_GET['maestro']);
     $stmt = $con->prepare("SELECT * FROM horarios_maestros WHERE id_maestro = ? AND periodo = 'FEB 2026-JUL 2026'");
     $stmt->execute([$id_sel]);
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        // Indexamos por día y hora de inicio para cruzar con la tabla HTML
         $horario_actual[$row['dia']][$row['hora_inicio']] = $row;
     }
 }
@@ -140,7 +136,7 @@ if (isset($_GET['maestro'])) {
                 <h2 class="fw-bold text-primary-dark">Gestión de Horarios</h2>
                 <p class="text-muted">Configuración de carga académica para maestros.</p>
             </div>
-            <a href="main.php" class="btn btn-outline-secondary"><i class='bx bx-left-arrow-alt'></i> Volver</a>
+            <a href="horario.php" class="btn btn-outline-secondary"><i class='bx bx-left-arrow-alt'></i> Volver</a>
         </div>
 
         <div class="card mb-4">
@@ -178,72 +174,72 @@ if (isset($_GET['maestro'])) {
                     <button type="button" class="btn btn-sm btn-outline-dark" onclick="window.print()"><i class='bx bx-printer'></i></button>
                 </div>
                 <div class="card-body">
-    <form method="POST" action=""> 
-        <input type="hidden" name="id_maestro" value="<?php echo $id_maestro; ?>">
-        <input type="hidden" name="periodo" value="FEB 2026-JUL 2026">
-        
-        <div class="table-responsive">
-            <table class="table table-bordered table-horario align-middle">
-                <thead class="table-light text-center">
-                    <tr>
-                        <th>Bloque</th>
-                        <?php foreach ($dias as $d): ?><th><?php echo $d; ?></th><?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($bloques_horarios as $idx => $b): ?>
-                    <tr>
-                        <td class="text-center">
-                            <span class="badge-hora"><?php echo substr($b[0], 0, 5); ?></span>
-                        </td>
-                        <?php foreach ($dias as $dia): 
-                            $h_inicio = $b[0];
-                            $ha = isset($horario_actual[$dia][$h_inicio]) ? $horario_actual[$dia][$h_inicio] : null;
-                        ?>
-                        <td class="celda-horario">
-                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][materia]" class="form-select select-horario materia-select mb-1">
-                                <option value="">- Materia -</option>
-                                <?php foreach ($materias as $mat): ?>
-                                    <option value="<?php echo $mat['id_materia']; ?>" 
-                                        <?php echo ($ha && $ha['id_materia'] == $mat['id_materia']) ? 'selected' : ''; ?>
-                                        data-color="<?php echo $mat['color'] ?? '#3b82f6'; ?>">
-                                        <?php echo htmlspecialchars($mat['materia']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            
-                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][grupo]" class="form-select select-horario mb-1">
-                                <option value="">- Grupo -</option>
-                                <?php foreach ($grupos as $g): ?>
-                                    <option value="<?php echo $g['id_grupo']; ?>" <?php echo ($ha && $ha['id_grupo'] == $g['id_grupo']) ? 'selected' : ''; ?>>
-                                        <?php echo $g['nombre']; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            
-                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][aula]" class="form-select select-horario">
-                                <option value="">- Aula -</option>
-                                <?php foreach ($aulas as $a): ?>
-                                    <option value="<?php echo $a['id_aula']; ?>" <?php echo ($ha && $ha['id_aula'] == $a['id_aula']) ? 'selected' : ''; ?>>
-                                        <?php echo $a['nombre']; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </td>
-                        <?php endforeach; ?>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+                    <form method="POST" action=""> 
+                        <input type="hidden" name="id_maestro" value="<?php echo $id_maestro; ?>">
+                        <input type="hidden" name="periodo" value="FEB 2026-JUL 2026">
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-horario align-middle">
+                                <thead class="table-light text-center">
+                                    <tr>
+                                        <th>Bloque</th>
+                                        <?php foreach ($dias as $d): ?><th><?php echo $d; ?></th><?php endforeach; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($bloques_horarios as $idx => $b): ?>
+                                    <tr>
+                                        <td class="text-center">
+                                            <span class="badge-hora"><?php echo substr($b[0], 0, 5); ?></span>
+                                        </td>
+                                        <?php foreach ($dias as $dia): 
+                                            $h_inicio = $b[0];
+                                            $ha = isset($horario_actual[$dia][$h_inicio]) ? $horario_actual[$dia][$h_inicio] : null;
+                                        ?>
+                                        <td class="celda-horario">
+                                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][materia]" class="form-select select-horario materia-select mb-1">
+                                                <option value="">- Materia -</option>
+                                                <?php foreach ($materias as $mat): ?>
+                                                    <option value="<?php echo $mat['id_materia']; ?>" 
+                                                        <?php echo ($ha && $ha['id_materia'] == $mat['id_materia']) ? 'selected' : ''; ?>
+                                                        data-color="<?php echo $mat['color'] ?? '#3b82f6'; ?>">
+                                                        <?php echo htmlspecialchars($mat['materia']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            
+                                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][grupo]" class="form-select select-horario mb-1">
+                                                <option value="">- Grupo -</option>
+                                                <?php foreach ($grupos as $g): ?>
+                                                    <option value="<?php echo $g['id_grupo']; ?>" <?php echo ($ha && $ha['id_grupo'] == $g['id_grupo']) ? 'selected' : ''; ?>>
+                                                        <?php echo $g['nombre']; ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            
+                                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][aula]" class="form-select select-horario">
+                                                <option value="">- Aula -</option>
+                                                <?php foreach ($aulas as $a): ?>
+                                                    <option value="<?php echo $a['id_aula']; ?>" <?php echo ($ha && $ha['id_aula'] == $a['id_aula']) ? 'selected' : ''; ?>>
+                                                        <?php echo $a['nombre']; ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </td>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
 
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-            <button type="submit" class="btn btn-success btn-lg px-5 fw-bold">
-                <i class='bx bx-save'></i> Guardar Horario
-            </button>
-        </div>
-    </form>
-</div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-success btn-lg px-5 fw-bold">
+                                <i class='bx bx-save'></i> Guardar Horario
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         <?php endif; endif; ?>
     </div>
@@ -252,10 +248,10 @@ if (isset($_GET['maestro'])) {
     <script>
         function applyColor(s) {
             const opt = s.options[s.selectedIndex];
-            const col = opt.getAttribute('data-color');
+            const col = opt.getAttribute('data-color') || '#3b82f6';
             const cell = s.closest('td');
             if (s.value) {
-                cell.style.backgroundColor = col + '15'; // Color suave de fondo
+                cell.style.backgroundColor = col + '15';
                 cell.style.borderLeft = '4px solid ' + col;
             } else {
                 cell.style.backgroundColor = '';
@@ -265,7 +261,7 @@ if (isset($_GET['maestro'])) {
         
         document.querySelectorAll('.materia-select').forEach(s => {
             s.addEventListener('change', () => applyColor(s));
-            applyColor(s); // Aplicar al cargar
+            applyColor(s); 
         });
     </script>
 </body>
