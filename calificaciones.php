@@ -2,9 +2,45 @@
 session_start();
 require_once 'conexion.php';
 
+// --- BLOQUE DE GUARDADO Y REDIRECCIÓN ---
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['calificaciones'])) {
+    try {
+        $id_materia = $_GET['materia'] ?? 0;
+        $id_grupo = $_GET['grupo'] ?? 0;
+
+        foreach ($_POST['calificaciones'] as $id_parcial => $alumnos_data) {
+            foreach ($alumnos_data as $id_alumno => $puntos) {
+                $lib = $puntos['libreta'] ?? 0;
+                $asi = $puntos['asistencia'] ?? 0;
+                $par = $puntos['participacion'] ?? 0;
+                $exa = $puntos['examen'] ?? 0;
+
+                // Guardar o actualizar
+                $sql = "INSERT INTO calificaciones_parcial 
+                        (id_alumno, id_materia, id_grupo, id_parcial, libreta_guia_puntos, asistencia_puntos, participacion_puntos, examen_puntos) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE 
+                        libreta_guia_puntos = VALUES(libreta_guia_puntos),
+                        asistencia_puntos = VALUES(asistencia_puntos),
+                        participacion_puntos = VALUES(participacion_puntos),
+                        examen_puntos = VALUES(examen_puntos)";
+                
+                $stmt = $con->prepare($sql);
+                $stmt->execute([$id_alumno, $id_materia, $id_grupo, $id_parcial, $lib, $asi, $par, $exa]);
+            }
+        }
+
+        header("Location: calificaciones_alumno.php?materia=$id_materia&grupo=$id_grupo");
+        exit();
+
+    } catch (Exception $e) {
+        echo "Error al guardar: " . $e->getMessage();
+    }
+}
+
+// Consultas originales
 $id_materia = $_GET['materia'] ?? 0;
 $id_grupo = $_GET['grupo'] ?? 0;
-
 $parciales_db = $con->query("SELECT * FROM parciales WHERE activo = 1 ORDER BY numero_parcial")->fetchAll(PDO::FETCH_ASSOC);
 $alumnos = $con->prepare("SELECT id_alumno, nombre, apellido_paterno FROM alumnos WHERE id_grupo = ? ORDER BY apellido_paterno");
 $alumnos->execute([$id_grupo]);
@@ -19,7 +55,27 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
     <style>
         :root { --cecyte-green: #1b4d3e; --cecyte-gold: #c5a059; --light-bg: #f8f9fa; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--light-bg); margin: 0; padding: 20px; }
-        .selector-container { max-width: 1100px; margin: 40px auto; text-align: center; }
+        .selector-container { max-width: 1100px; margin: 40px auto; text-align: center; position: relative; }
+        
+        /* ESTILO DEL NUEVO BOTÓN VOLVER */
+        .btn-volver-seccion {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            padding: 10px 20px;
+            background: #fff;
+            color: var(--cecyte-green);
+            border: 2px solid var(--cecyte-green);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-volver-seccion:hover {
+            background: var(--cecyte-green);
+            color: #fff;
+        }
+
         .btn-parcial-selector {
             width: 250px; padding: 40px 20px; margin: 15px;
             font-size: 1.2rem; font-weight: bold; color: white;
@@ -29,10 +85,7 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
             display: inline-block;
         }
         .btn-parcial-selector.active { background: var(--cecyte-gold); outline: 4px solid var(--cecyte-green); }
-        .tabla-desplegable { 
-            display: none; background: white; padding: 30px; 
-            border-radius: 20px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
+        .tabla-desplegable { display: none; background: white; padding: 30px; border-radius: 20px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: #f1f2f6; color: var(--cecyte-green); padding: 15px; border-bottom: 2px solid #ddd; }
         td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
@@ -44,6 +97,8 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
 <body>
 
     <div class="selector-container">
+        <a href="seleccionar_clase.php" class="btn-volver-seccion">← Cambiar Clase</a>
+
         <h2 style="color: var(--cecyte-green);">Captura de Calificaciones (Escala 1-10)</h2>
         
         <div class="botones-container">
@@ -78,18 +133,14 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
                             <?php foreach ($lista_alumnos as $al): 
                                 $uid = $id_p . "_" . $al['id_alumno'];
                                 $c = $existentes[$al['id_alumno']] ?? [];
-                                
                                 $v_lib = $c['libreta_guia_puntos'] ?? 0;
                                 $v_asi = $c['asistencia_puntos'] ?? 0;
                                 $v_par = $c['participacion_puntos'] ?? 0;
                                 $v_exa = $c['examen_puntos'] ?? 0;
-
-                                // Cálculo PHP inicial (escala 10)
                                 $total_actual = ($v_lib * 0.50) + ($v_asi * 0.05) + ($v_par * 0.05) + ($v_exa * 0.40);
                             ?>
                                 <tr>
                                     <td style="text-align: left;"><?= htmlspecialchars($al['apellido_paterno'] . " " . $al['nombre']) ?></td>
-                                    
                                     <td>
                                         <select name="calificaciones[<?= $id_p ?>][<?= $al['id_alumno'] ?>][libreta]" class="input-cal" onchange="actualizarTotal('<?= $uid ?>')" id="l_<?= $uid ?>">
                                             <?php for($i=0; $i<=10; $i++): ?>
@@ -97,7 +148,6 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
                                             <?php endfor; ?>
                                         </select>
                                     </td>
-
                                     <td>
                                         <select name="calificaciones[<?= $id_p ?>][<?= $al['id_alumno'] ?>][asistencia]" class="input-cal" onchange="actualizarTotal('<?= $uid ?>')" id="a_<?= $uid ?>">
                                             <?php for($i=0; $i<=10; $i++): ?>
@@ -105,7 +155,6 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
                                             <?php endfor; ?>
                                         </select>
                                     </td>
-
                                     <td>
                                         <select name="calificaciones[<?= $id_p ?>][<?= $al['id_alumno'] ?>][participacion]" class="input-cal" onchange="actualizarTotal('<?= $uid ?>')" id="p_<?= $uid ?>">
                                             <?php for($i=0; $i<=10; $i++): ?>
@@ -113,7 +162,6 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
                                             <?php endfor; ?>
                                         </select>
                                     </td>
-
                                     <td>
                                         <select name="calificaciones[<?= $id_p ?>][<?= $al['id_alumno'] ?>][examen]" class="input-cal" onchange="actualizarTotal('<?= $uid ?>')" id="e_<?= $uid ?>">
                                             <?php for($i=0; $i<=10; $i++): ?>
@@ -121,7 +169,6 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
                                             <?php endfor; ?>
                                         </select>
                                     </td>
-
                                     <td>
                                         <span class="total-badge" id="t_<?= $uid ?>" 
                                               style="background: <?= ($total_actual < 7) ? '#e74c3c' : (($total_actual >= 9) ? '#27ae60' : '#2980b9') ?>;">
@@ -132,7 +179,7 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                    <button type="submit" class="btn-save-all">GUARDAR PARCIAL <?= $p['numero_parcial'] ?></button>
+                    <button type="submit" class="btn-save-all">GUARDAR Y VER RESULTADOS</button>
                 </div>
             <?php endforeach; ?>
         </form>
@@ -149,26 +196,17 @@ $lista_alumnos = $alumnos->fetchAll(PDO::FETCH_ASSOC);
         }
 
         function actualizarTotal(uid) {
-            // Valores del 0 al 10
             const l = parseFloat(document.getElementById('l_' + uid).value) || 0;
             const a = parseFloat(document.getElementById('a_' + uid).value) || 0;
             const p = parseFloat(document.getElementById('p_' + uid).value) || 0;
             const e = parseFloat(document.getElementById('e_' + uid).value) || 0;
-            
-            // Cálculo con ponderación (Escala 10)
             const total = (l * 0.50) + (a * 0.05) + (p * 0.05) + (e * 0.40);
-            
             const badge = document.getElementById('t_' + uid);
             badge.textContent = total.toFixed(1);
 
-            // Ajuste de colores para escala 1-10
-            if (total >= 9) {
-                badge.style.background = "#27ae60"; // Excelente (Verde)
-            } else if (total >= 6) {
-                badge.style.background = "#2980b9"; // Aprobado (Azul)
-            } else {
-                badge.style.background = "#e74c3c"; // Reprobado (Rojo)
-            }
+            if (total >= 9) { badge.style.background = "#27ae60"; } 
+            else if (total >= 6) { badge.style.background = "#2980b9"; } 
+            else { badge.style.background = "#e74c3c"; }
         }
     </script>
 </body>
