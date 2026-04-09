@@ -122,6 +122,16 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
         .btn-qr { background: #334155; color: white; margin-bottom: 25px; }
         .btn-qr:hover { background: #1e293b; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); }
+        
+        /* Botón de volver adicional */
+        .btn-back { 
+            background: #f1f5f9; 
+            color: #475569; 
+            margin-bottom: 10px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+        .btn-back:hover { background: #e2e8f0; color: #1e293b; }
 
         /* --- GRID DE CLASES --- */
         .clases-grid {
@@ -204,9 +214,15 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container">
     
-    <div style="margin-bottom: 30px;">
-        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--primary-dark);">Mis Clases</h2>
-        <p style="color: var(--text-muted);">Selecciona una materia para gestionar asistencia o calificaciones.</p>
+    <a href="main.php" class="btn btn-back">
+        <i class="fas fa-arrow-left"></i> Volver al Inicio
+    </a>
+
+    <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--primary-dark);">Mis Clases</h2>
+            <p style="color: var(--text-muted);">Selecciona una materia para gestionar asistencia o calificaciones.</p>
+        </div>
     </div>
 
     <?php if ($es_admin): ?>
