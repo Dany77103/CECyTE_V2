@@ -273,7 +273,7 @@ $especialidades = $con->query("SELECT DISTINCT especialidad FROM maestros WHERE 
 
     <nav class="navbar">
         <a href="main.php" class="navbar-brand">
-            <img src="img/logo_cecyte.jpg" alt="CECyTE Logo">
+            <img src="img/logo.png" alt="CECyTE Logo">
             <span>CECyTE Santa Catarina</span>
         </a>
         <div class="nav-actions">

@@ -1,9 +1,9 @@
 <?php
+// consulta_horario_grupo.php
 session_start();
 require_once 'config.php';
 require_once 'conexion.php';
 
-// Si no está logueado, redirigir (opcional, dependiendo de si quieres que sea público)
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
     exit();
@@ -21,13 +21,11 @@ $grupo_nombre = "";
 if (isset($_GET['grupo']) && !empty($_GET['grupo'])) {
     $id_grupo = intval($_GET['grupo']);
     
-    // Obtener nombre del grupo seleccionado
     $stmt_g = $con->prepare("SELECT nombre, semestre FROM grupos WHERE id_grupo = ?");
     $stmt_g->execute([$id_grupo]);
     $g_info = $stmt_g->fetch(PDO::FETCH_ASSOC);
     $grupo_nombre = $g_info['nombre'] . " - " . $g_info['semestre'] . "º Semestre";
 
-    // Consulta detallada con JOINs para ver nombres en lugar de IDs
     $query_h = "SELECT h.*, m.materia, ma.nombre as m_nom, ma.apellido_paterno as m_pat, a.nombre as aula_nom 
                 FROM horarios_maestros h
                 LEFT JOIN materias m ON h.id_materia = m.id_materia
@@ -54,88 +52,196 @@ $bloques = [
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Consulta de Horarios | CECyTE</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Grupal | CECyTE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root { --primary-dark: #1a5330; --verde-claro: #f1f8f1; }
-        body { background-color: var(--verde-claro); font-family: 'Segoe UI', sans-serif; font-size: 1.1rem; }
-        .header-title { color: var(--primary-dark); font-weight: 700; }
-        .table-consulta { background: white; border-radius: 15px; overflow: hidden; border: none; }
-        .table-consulta thead { background-color: var(--primary-dark); color: white; }
-        .badge-hora { background: #e9ecef; color: #495057; padding: 8px; border-radius: 6px; font-weight: 600; display: block; }
-        .info-materia { color: var(--primary-dark); font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
-        .info-maestro { color: #6c757d; font-size: 0.9rem; }
-        .info-aula { color: #1a5330; font-weight: 600; font-size: 0.85rem; background: #d4edda; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; }
-        @media print { .no-print { display: none; } .container-fluid { width: 100%; } }
+        :root {
+            --primary: #1a5330;
+            --primary-light: #2e7d32;
+            --secondary: #6c757d;
+            --white: #ffffff;
+            --bg: #f4f6f9;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            padding-top: 90px;
+            color: #333;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: var(--white);
+            height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 5%; position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000; box-shadow: var(--shadow-sm);
+        }
+        .navbar-brand { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        .navbar-brand img { height: 45px; }
+        .navbar-brand span { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- CARDS --- */
+        .content-card {
+            background: var(--white); padding: 30px; border-radius: 20px;
+            box-shadow: var(--shadow-md); border-left: 6px solid var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-flex h2 { color: var(--primary); font-size: 1.5rem; font-weight: 700; margin: 0; }
+
+        /* --- FORM ELEMENTS --- */
+        .label-mini {
+            font-size: 0.75rem; font-weight: 700; color: var(--secondary);
+            text-transform: uppercase; display: block; margin-bottom: 6px;
+        }
+        .form-select {
+            border-radius: 12px; border: 1px solid #e0e0e0; padding: 12px;
+            font-size: 1rem; transition: var(--transition);
+        }
+        .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26, 83, 48, 0.1); }
+
+        /* --- TABLE --- */
+        .table-responsive { border-radius: 15px; overflow: hidden; background: white; }
+        .table-horario { width: 100%; border-collapse: collapse; background: white; }
+        .table-horario th {
+            background: #f8f9fa; color: var(--primary); padding: 15px;
+            font-size: 0.8rem; text-transform: uppercase; font-weight: 700;
+            border-bottom: 2px solid #edf2f7;
+        }
+        .table-horario td {
+            padding: 15px; border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle; text-align: center;
+        }
+        
+        .badge-hora {
+            background: #e8f5e9; color: var(--primary); padding: 8px 12px;
+            border-radius: 8px; font-weight: 700; font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        /* --- INFO BOXES --- */
+        .info-materia { font-weight: 700; color: #1e293b; font-size: 0.95rem; line-height: 1.2; margin-bottom: 4px; }
+        .info-maestro { color: var(--secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-aula {
+            display: inline-block; margin-top: 8px; padding: 4px 10px;
+            background: #f1f5f9; color: var(--primary); border-radius: 6px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+
+        .btn-action {
+            padding: 10px 20px; border-radius: 10px; text-decoration: none;
+            font-weight: 600; font-size: 0.85rem; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px; border: none;
+        }
+        .btn-primary-custom { background: var(--primary); color: white; }
+        .btn-outline-custom { border: 1.5px solid #e2e8f0; color: var(--secondary); }
+        .btn-outline-custom:hover { background: #f8f9fa; }
+
+        @media print {
+            .no-print, .navbar { display: none !important; }
+            body { padding-top: 0; background: white; }
+            .content-card { box-shadow: none; border: 1px solid #eee; margin: 0; }
+            .table-horario th { background: #eee !important; color: black !important; }
+        }
     </style>
 </head>
 <body>
-    <div class="container-fluid py-5">
-        <div class="d-flex justify-content-between align-items-center mb-4 px-4 no-print">
-            <h4 class="header-title"><i class='bx bx-calendar-event'></i> Consulta de Horarios</h4>
-            <div>
-                <button onclick="window.print()" class="btn btn-primary me-2"><i class='bx bx-printer'></i> Imprimir</button>
-                <a href="horarios.php" class="btn btn-outline-secondary">Volver</a>
-            </div>
-        </div>
 
-        <div class="card shadow-sm border-0 mb-4 no-print" style="border-radius: 15px;">
-            <div class="card-body p-4">
-                <form method="GET" class="row g-3 align-items-end">
-                    <div class="col-md-8">
-                        <label class="form-label fw-bold">Seleccionar Grupo:</label>
-                        <select name="grupo" class="form-select form-select-lg" onchange="this.form.submit()">
-                            <option value="">-- Elige un grupo --</option>
-                            <?php while ($g = $grupos_res->fetch(PDO::FETCH_ASSOC)): ?>
-                                <option value="<?= $g['id_grupo'] ?>" <?= (isset($_GET['grupo']) && $_GET['grupo'] == $g['id_grupo']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($g['nombre'] . " - " . $g['semestre'] . "º Semestre") ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <p class="mb-2 small text-muted text-uppercase fw-bold">Periodo Escolar</p>
-                        <span class="badge bg-dark p-2 px-3 fs-6"><?= $periodo_actual ?></span>
-                    </div>
-                </form>
+    <nav class="navbar no-print">
+        <a href="main.php" class="navbar-brand">
+            <img src="img/logo.png" alt="CECyTE Logo">
+            <span>Gestión Académica</span>
+        </a>
+        <div style="font-size: 0.85rem; font-weight: 600; color: var(--secondary);">
+            <i class="fa-solid fa-calendar-check"></i> Consulta de Horarios
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="content-card no-print">
+            <div class="header-flex">
+                <div>
+                    <h2><i class="fa-solid fa-users-rectangle"></i> Horarios por Grupo</h2>
+                    <p style="color: var(--secondary); font-size: 0.85rem;">Seleccione el grupo para visualizar su horario</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button onclick="window.print()" class="btn-action btn-outline-custom">
+                        <i class="fa-solid fa-print"></i> Imprimir
+                    </button>
+                    <a href="horarios.php" class="btn-action btn-outline-custom">Volver</a>
+                </div>
             </div>
+
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label class="label-mini">Grupo / Semestre</label>
+                    <select name="grupo" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Buscar grupo... --</option>
+                        <?php 
+                        $grupos_res->execute(); // Reiniciar puntero si es necesario
+                        while ($g = $grupos_res->fetch(PDO::FETCH_ASSOC)): ?>
+                            <option value="<?= $g['id_grupo'] ?>" <?= (isset($_GET['grupo']) && $_GET['grupo'] == $g['id_grupo']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($g['nombre'] . " - " . $g['semestre'] . "º Semestre") ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                <div class="col-md-4 text-center">
+                    <label class="label-mini">Ciclo Escolar</label>
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 12px; font-weight: 700; color: var(--primary); border: 1px solid #e0e0e0;">
+                        <?= $periodo_actual ?>
+                    </div>
+                </div>
+            </form>
         </div>
 
         <?php if (!empty($grupo_nombre)): ?>
-            <div class="card shadow-sm border-0 table-consulta">
-                <div class="card-header bg-white py-3 border-0 text-center">
-                    <h3 class="header-title mb-0">GRUPO: <?= htmlspecialchars($grupo_nombre) ?></h3>
+            <div class="content-card" style="padding: 0; overflow: hidden; border-left: none; border-top: 6px solid var(--primary);">
+                <div style="padding: 20px; text-align: center; background: #fff;">
+                    <h3 style="font-weight: 800; color: var(--primary); margin: 0; text-transform: uppercase;">
+                        Grupo: <?= htmlspecialchars($grupo_nombre) ?>
+                    </h3>
                 </div>
+                
                 <div class="table-responsive">
-                    <table class="table table-bordered align-middle text-center mb-0">
+                    <table class="table-horario">
                         <thead>
                             <tr>
-                                <th style="width: 150px;">HORA</th>
-                                <?php foreach ($dias as $d): ?><th><?= strtoupper($d) ?></th><?php endforeach; ?>
+                                <th style="width: 120px;">Hora</th>
+                                <?php foreach ($dias as $d): ?><th><?= $d ?></th><?php endforeach; ?>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($bloques as $b): ?>
                             <tr>
-                                <td class="bg-light">
+                                <td style="background: #fcfdfe; border-right: 1px solid #edf2f7;">
                                     <span class="badge-hora"><?= $b[0] ?> - <?= $b[1] ?></span>
                                 </td>
                                 <?php foreach ($dias as $dia): 
                                     $h_key = $b[0] . ':00';
                                     $data = $horario_view[$dia][$h_key] ?? null;
                                 ?>
-                                <td style="height: 100px; min-width: 160px;">
+                                <td style="height: 110px; min-width: 170px;">
                                     <?php if ($data): ?>
                                         <div class="info-materia"><?= htmlspecialchars($data['materia']) ?></div>
-                                        <div class="info-maestro text-uppercase small">
+                                        <div class="info-maestro">
                                             <?= htmlspecialchars($data['m_pat'] . " " . $data['m_nom']) ?>
                                         </div>
                                         <div class="info-aula">
-                                            <i class='bx bx-door-open'></i> <?= htmlspecialchars($data['aula_nom']) ?>
+                                            <i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars($data['aula_nom']) ?>
                                         </div>
                                     <?php else: ?>
-                                        <span class="text-muted small">--</span>
+                                        <span style="color: #cbd5e1; font-size: 0.8rem;">---</span>
                                     <?php endif; ?>
                                 </td>
                                 <?php endforeach; ?>
@@ -145,15 +251,18 @@ $bloques = [
                     </table>
                 </div>
             </div>
-            
-            <div class="text-center mt-4 no-print">
-                 <a href="exportar_excel_grupo.php?grupo=<?= $_GET['grupo'] ?>" class="btn btn-outline-success">
-                    <i class='bx bxs-file-export'></i> Descargar Excel
+
+            <div class="text-center no-print" style="margin-top: -10px; margin-bottom: 40px;">
+                 <a href="exportar_excel_grupo.php?grupo=<?= $_GET['grupo'] ?>" class="btn-action btn-primary-custom">
+                    <i class="fa-solid fa-file-excel"></i> Descargar Reporte en Excel
                 </a>
             </div>
+
         <?php else: ?>
-            <div class="alert alert-info text-center shadow-sm" style="border-radius: 10px;">
-                <i class='bx bx-info-circle'></i> Selecciona un grupo arriba para visualizar el horario cargado.
+            <div class="content-card text-center py-5">
+                <i class="fa-solid fa-calendar-days" style="font-size: 3rem; color: #e2e8f0; margin-bottom: 15px;"></i>
+                <h4 style="color: var(--secondary);">Esperando selección</h4>
+                <p class="text-muted">Elija un grupo del menú superior para generar la vista de horario.</p>
             </div>
         <?php endif; ?>
     </div>

@@ -64,245 +64,233 @@ $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGA | Seleccionar Clase</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Clases | SGA CECyTE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2e7d32;
-            --primary-dark: #1b5e20;
+            --primary: #1a5330;
+            --primary-light: #2e7d32;
             --accent: #8bc34a;
-            --bg: #f0f2f5;
+            --bg: #f4f7f6;
             --white: #ffffff;
             --text-main: #1e293b;
-            --text-muted: #64748b;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --text-sub: #64748b;
+            --shadow: 0 4px 25px rgba(0,0,0,0.08);
+            --radius: 20px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.5; }
+        body { 
+            background-color: var(--bg); 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-main);
+            padding-top: 90px;
+        }
 
-        /* --- HEADER MODERNO --- */
-        .header {
+        /* --- NAVBAR --- */
+        .navbar {
             background: var(--white);
-            padding: 1rem 5%;
+            height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 5%; position: fixed;
+            top: 0; left: 0; right: 0; z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+        }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--primary); font-weight: 800; }
+        .navbar-brand img { height: 42px; }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 25px; }
+
+        /* --- TITULOS --- */
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            position: sticky; top: 0; z-index: 100;
-        }
-        .header-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--primary-dark); font-weight: 800; }
-        
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
-
-        /* --- FILTROS --- */
-        .filter-card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 16px;
             margin-bottom: 30px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,0.05);
         }
-        .filter-form { display: flex; gap: 12px; }
-        select {
-            flex-grow: 1; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0;
-            background: #f8fafc; font-size: 0.95rem; outline: none; transition: 0.2s;
+        .page-title h2 { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        .page-title p { color: var(--text-sub); font-size: 0.95rem; }
+
+        /* --- FILTROS (ADMIN) --- */
+        .filter-card { 
+            background: var(--white); border-radius: var(--radius); 
+            padding: 25px; margin-bottom: 30px; box-shadow: var(--shadow);
         }
-        select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1); }
+        .filter-form { display: grid; grid-template-columns: 1fr auto; gap: 15px; }
+        .input-custom {
+            width: 100%; padding: 12px 18px; border-radius: 12px; border: 1.5px solid #e2e8f0; 
+            font-size: 0.9rem; font-family: 'Inter'; outline: none;
+        }
+        .input-custom:focus { border-color: var(--primary); }
 
         /* --- BOTONES --- */
-        .btn {
-            padding: 12px 24px; border-radius: 10px; border: none; font-weight: 700;
-            cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px;
-            text-decoration: none; font-size: 0.9rem;
+        .btn-main {
+            background: var(--primary); color: white; padding: 12px 25px; 
+            border-radius: 12px; text-decoration: none; font-weight: 700; 
+            font-size: 0.9rem; display: inline-flex; align-items: center; gap: 10px;
+            border: none; cursor: pointer; transition: 0.3s;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        .btn-qr { background: #334155; color: white; margin-bottom: 25px; }
-        .btn-qr:hover { background: #1e293b; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); }
-        
-        /* Botón de volver adicional */
-        .btn-back { 
-            background: #f1f5f9; 
-            color: #475569; 
-            margin-bottom: 10px;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-        }
-        .btn-back:hover { background: #e2e8f0; color: #1e293b; }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(26, 83, 48, 0.2); }
+        .btn-secondary { background: #f1f5f9; color: #475569; }
+        .btn-qr-full { background: #1e293b; color: white; margin-bottom: 30px; width: 100%; justify-content: center; }
 
         /* --- GRID DE CLASES --- */
         .clases-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 25px;
+            margin-bottom: 50px;
         }
 
         .card-clase {
             background: var(--white);
-            border-radius: 20px;
+            border-radius: var(--radius);
             overflow: hidden;
             box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.02);
         }
         .card-clase:hover { transform: translateY(-8px); }
 
-        .card-visual {
+        .card-top {
             height: 8px;
             background: linear-gradient(90deg, var(--primary), var(--accent));
         }
 
-        .card-content { padding: 25px; flex-grow: 1; }
-        .materia-title { font-size: 1.2rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 5px; }
-        
+        .card-body { padding: 25px; flex-grow: 1; }
         .badge-grupo {
+            background: #f0fdf4; color: var(--primary);
+            padding: 6px 14px; border-radius: 10px; font-size: 0.7rem;
+            font-weight: 800; text-transform: uppercase; margin-bottom: 15px;
             display: inline-block;
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
         }
-
-        .info-item {
+        .materia-name { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.3; }
+        
+        .info-row {
             display: flex; align-items: center; gap: 10px;
-            color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px;
+            color: var(--text-sub); font-size: 0.85rem; margin-bottom: 8px;
+            font-weight: 500;
         }
+        .info-row i { color: var(--primary-light); width: 18px; }
 
-        /* --- ACCIONES --- */
-        .card-actions {
+        /* --- ACCIONES DE TARJETA --- */
+        .card-footer {
             padding: 20px 25px 25px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
+            background: #fafbfc;
         }
         .btn-action {
             padding: 10px; border-radius: 12px; text-align: center;
-            font-weight: 700; font-size: 0.8rem; text-decoration: none; transition: 0.2s;
+            font-weight: 700; font-size: 0.8rem; text-decoration: none;
+            transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
         }
-        .btn-asistencia { background: var(--primary); color: white; grid-column: span 2; }
-        .btn-qr-card { background: #f1f5f9; color: #475569; }
-        .btn-calif { background: #f1f5f9; color: #475569; }
-        
-        .btn-action:hover { opacity: 0.9; filter: brightness(0.95); }
+        .btn-asistencia { background: var(--primary); color: white; grid-column: span 2; padding: 12px; }
+        .btn-opt { background: white; color: #475569; border: 1.5px solid #e2e8f0; }
+        .btn-opt:hover { border-color: var(--primary); color: var(--primary); }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .clases-grid { grid-template-columns: 1fr; }
-            .filter-form { flex-direction: column; }
+            .filter-form { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<header class="header">
-    <a href="main.php" class="header-brand">
-        <i class="fas fa-graduation-cap"></i>
-        <span>SGA CECYTE</span>
-    </a>
-    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">
-        <i class="fas fa-user-circle"></i> <?= htmlspecialchars($_SESSION['nombre_completo'] ?? 'Maestro') ?>
-    </div>
-</header>
+    <nav class="navbar">
+        <a href="main.php" class="navbar-brand">
+            <img src="img/logo.png" alt="Logo">
+            <span>CECyTE Gestión</span>
+        </a>
+        <div style="display: flex; gap: 15px;">
+            <a href="main.php" class="btn-main btn-secondary"><i class="fas fa-home"></i></a>
+            <a href="logout.php" class="btn-main" style="background: #fee2e2; color: #dc2626;"><i class="fas fa-power-off"></i></a>
+        </div>
+    </nav>
 
-<div class="container">
-    
-    <a href="main.php" class="btn btn-back">
-        <i class="fas fa-arrow-left"></i> Volver al Inicio
-    </a>
+    <div class="container">
+        
+        <div class="page-header">
+            <div class="page-title">
+                <h2>Mis Clases</h2>
+                <p>Bienvenido, <strong><?= htmlspecialchars($_SESSION['nombre_completo'] ?? 'Catedrático') ?></strong></p>
+            </div>
+        </div>
 
-    <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;">
-        <div>
-            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--primary-dark);">Mis Clases</h2>
-            <p style="color: var(--text-muted);">Selecciona una materia para gestionar asistencia o calificaciones.</p>
+        <?php if ($es_admin): ?>
+        <div class="filter-card">
+            <form method="GET" class="filter-form">
+                <select name="maestro_id" class="input-custom">
+                    <option value="">Visualizar todos los maestros</option>
+                    <?php foreach ($maestros as $m): ?>
+                        <option value="<?= $m['id_maestro'] ?>" <?= ($id_maestro_seleccionado == $m['id_maestro']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($m['nombre_completo']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn-main">
+                    <i class="fas fa-filter"></i> Filtrar
+                </button>
+            </form>
+        </div>
+        <?php endif; ?>
+
+        <a href="asistencia_qrv2.php" class="btn-main btn-qr-full">
+            <i class="fas fa-qrcode"></i> Lector QR Acceso General
+        </a>
+
+        <div class="clases-grid">
+            <?php if (empty($clases)): ?>
+                <div style="grid-column: 1/-1; text-align:center; padding: 80px 20px; background:white; border-radius:20px; box-shadow: var(--shadow);">
+                    <i class="fas fa-folder-open" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 20px;"></i>
+                    <p style="font-weight: 600; color: var(--text-sub);">No hay clases asignadas para mostrar.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach ($clases as $clase): ?>
+                <div class="card-clase">
+                    <div class="card-top"></div>
+                    <div class="card-body">
+                        <span class="badge-grupo">Grupo <?= htmlspecialchars($clase['grupo_nombre']) ?></span>
+                        <h3 class="materia-name"><?= htmlspecialchars($clase['materia']) ?></h3>
+                        
+                        <?php if ($es_admin): ?>
+                        <div class="info-row">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Prof. <?= htmlspecialchars($clase['nombre_maestro']) ?></span>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <div class="info-row">
+                            <i class="far fa-calendar-check"></i>
+                            <span>Semestre Enero - Junio 2026</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Registro de asistencia activo</span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <a href="tomar_asistencia.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-asistencia">
+                            <i class="fas fa-check-double"></i> Tomar Asistencia
+                        </a>
+                        <a href="asistencia_qrv2.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-opt" title="QR">
+                            <i class="fas fa-qrcode"></i> Escanear
+                        </a>
+                        <a href="calificaciones.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-opt" title="Notas">
+                            <i class="fas fa-star"></i> Notas
+                        </a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 
-    <?php if ($es_admin): ?>
-    <div class="filter-card">
-        <form method="GET" class="filter-form">
-            <select name="maestro_id">
-                <option value="">Visualizar todos los maestros</option>
-                <?php foreach ($maestros as $m): ?>
-                    <option value="<?= $m['id_maestro'] ?>" <?= ($id_maestro_seleccionado == $m['id_maestro']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($m['nombre_completo']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-search"></i> Filtrar Clases
-            </button>
-        </form>
-    </div>
-    <?php endif; ?>
-
-    <a href="asistencia_qrv2.php" class="btn btn-qr">
-        <i class="fas fa-qrcode"></i> Lector QR de Acceso General
-    </a>
-
-    <div class="clases-grid">
-        <?php if (empty($clases)): ?>
-            <div style="grid-column: 1/-1; text-align:center; padding: 60px; background:white; border-radius:20px;">
-                <img src="https://illustrations.popsy.co/green/empty-folder.svg" style="width:150px; margin-bottom:20px;">
-                <p style="font-weight: 600; color: var(--text-muted);">No se encontraron clases programadas.</p>
-            </div>
-        <?php else: ?>
-            <?php foreach ($clases as $clase): ?>
-            <div class="card-clase">
-                <div class="card-visual"></div>
-                <div class="card-content">
-                    <div class="badge-grupo">Grupo <?= htmlspecialchars($clase['grupo_nombre']) ?></div>
-                    <h3 class="materia-title"><?= htmlspecialchars($clase['materia']) ?></h3>
-                    
-                    <?php if ($es_admin): ?>
-                    <div class="info-item">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <span>Prof. <?= htmlspecialchars($clase['nombre_maestro']) ?></span>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <div class="info-item">
-                        <i class="fas fa-clock"></i>
-                        <span>Ciclo Escolar Activo 2026</span>
-                    </div>
-                </div>
-
-                <div class="card-actions">
-                    <a href="tomar_asistencia.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-asistencia">
-                        <i class="fas fa-user-check"></i> Tomar Asistencia
-                    </a>
-                    <a href="asistencia_qrv2.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-qr-card" title="Escanear QR">
-                        <i class="fas fa-qrcode"></i> QR
-                    </a>
-                    <a href="calificaciones.php?materia=<?= $clase['id_materia'] ?>&grupo=<?= $clase['id_grupo'] ?>" class="btn-action btn-calif" title="Calificaciones">
-                        <i class="fas fa-star"></i> Notas
-                    </a>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
-</div>
-
-<script>
-    // Animación de entrada para las tarjetas
-    document.querySelectorAll('.card-clase').forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            card.style.transition = 'all 0.5s ease-out';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-</script>
-
+    <div style="height: 40px;"></div>
 </body>
 </html>

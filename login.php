@@ -71,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     exit;
                 } else { $error = "Contraseña incorrecta"; }
             } else {
-                // Lógica alternativa de maestro
                 $sql_maestro = "SELECT id_maestro, numEmpleado, nombre, correo_institucional, activo FROM maestros WHERE numEmpleado = :identificador AND activo = 'Activo' LIMIT 1";
                 $stmt_maestro = $con->prepare($sql_maestro);
                 $stmt_maestro->bindParam(':identificador', $identificador);
@@ -109,24 +108,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2e7d32; --bg: #f0f2f5; --white: #ffffff; --error: #d32f2f; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); height: 100vh; margin: 0; display: flex; flex-direction: column; }
-        .top-header { background: var(--white); padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            /* CONFIGURACIÓN DE LA IMAGEN DE FONDO */
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img/fondo_imagen3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            
+            height: 100vh; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .top-header { 
+            background: rgba(255, 255, 255, 0.95); /* Header ligeramente transparente */
+            padding: 1.2rem 2rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+
         .header-left { display: flex; align-items: center; gap: 15px; font-size: 1.2rem; }
         .header-right { font-weight: 600; color: var(--primary); font-size: 1.1rem; }
         .header-logo { height: 60px; }
+
         .main-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .login-card { background: var(--white); padding: 4rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 900px; display: flex; gap: 40px; }
+
+        .login-card { 
+            background: rgba(255, 255, 255, 0.98); /* Card con ligera transparencia para un look moderno */
+            padding: 4rem; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+            width: 100%; 
+            max-width: 900px; 
+            display: flex; 
+            gap: 40px; 
+        }
+
         .login-content, .info-section { flex: 1; }
-        .info-section { border-left: 1px solid #eee; padding-left: 40px; color: #555; }
+        .info-section { border-left: 1px solid #eee; padding-left: 40px; color: #333; }
         .logo-box { text-align: center; margin-bottom: 2.5rem; }
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { font-weight: 600; display: block; margin-bottom: 0.5rem; }
-        .form-group input { width: 100%; padding: 16px; font-size: 1.2rem; border: 2px solid #e1e1e1; border-radius: 12px; }
-        .btn-login { width: 100%; padding: 16px; font-size: 1.3rem; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; }
+        .form-group input { width: 100%; padding: 16px; font-size: 1.2rem; border: 2px solid #e1e1e1; border-radius: 12px; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 16px; font-size: 1.3rem; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .btn-login:hover { background: #1b5e20; transform: translateY(-2px); }
         
-        /* Estilos del termómetro */
         .strength-meter { height: 8px; width: 100%; background: #e1e1e1; border-radius: 4px; margin-top: 10px; overflow: hidden; }
         .strength-bar { height: 100%; width: 0%; transition: width 0.3s, background-color 0.3s; }
+
+        @media (max-width: 768px) {
+            .login-card { flex-direction: column; padding: 2rem; }
+            .info-section { border-left: none; padding-left: 0; padding-top: 20px; border-top: 1px solid #eee; }
+        }
     </style>
 </head>
 <body>
@@ -143,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="login-card">
             <div class="login-content">
                 <div class="logo-box"><h2>Iniciar Sesión</h2></div>
-                <?php if (!empty($error)): ?><div style="color: var(--error); margin-bottom: 1rem;"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
+                <?php if (!empty($error)): ?><div style="color: var(--error); margin-bottom: 1rem; font-weight: bold;"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
                 <form method="POST" action="">
                     <div class="form-group">
                         <label>Usuario / Matrícula</label>

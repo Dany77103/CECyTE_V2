@@ -1,43 +1,31 @@
 <?php
-// horario_maestros_captura.php - VERSIÓN ACTUALIZADA Y CORREGIDA
+// horario_maestros_captura.php
 session_start();
 
-// Incluir configuraciones
 require_once 'config.php';
 require_once 'conexion.php';
 
-// Verificar si es administrador
 if (!isset($_SESSION['username']) || $_SESSION['rol'] != 'admin') {
     header('Location: login.php');
     exit();
 }
 
-// Verificar que la conexión se haya establecido
 if (!isset($con)) {
-    die("Error: No se pudo conectar a la base de datos. Verifica el archivo conexion.php");
+    die("Error: No se pudo conectar a la base de datos.");
 }
 
-// 1. CONFIGURACIÓN DE BLOQUES (Normalizados a HH:MM:SS para la BD)
 $dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
 $bloques_horarios = [
-    ['11:45:00', '12:30:00'],
-    ['12:30:00', '13:15:00'],
-    ['13:15:00', '14:00:00'],
-    ['14:00:00', '14:45:00'],
-    ['14:45:00', '15:30:00'],
-    ['15:30:00', '16:15:00'],
-    ['16:15:00', '17:00:00']
+    ['11:45:00', '12:30:00'], ['12:30:00', '13:15:00'], ['13:15:00', '14:00:00'],
+    ['14:00:00', '14:45:00'], ['14:45:00', '15:30:00'], ['15:30:00', '16:15:00'], ['16:15:00', '17:00:00']
 ];
 
-// 2. PROCESAR FORMULARIO (GUARDADO)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_maestro'])) {
     $id_maestro = intval($_POST['id_maestro']);
     $periodo = $_POST['periodo'];
     
     try {
         $con->beginTransaction();
-
-        // Eliminar registros previos de este maestro y periodo
         $delete_stmt = $con->prepare("DELETE FROM horarios_maestros WHERE id_maestro = ? AND periodo = ?");
         $delete_stmt->execute([$id_maestro, $periodo]);
 
@@ -56,25 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_maestro'])) {
                         $grupo_id = !empty($datos['grupo']) ? intval($datos['grupo']) : NULL;
                         
                         $insert_stmt->execute([
-                            $id_maestro, 
-                            $materia, 
-                            $dia, 
-                            $hora[0], 
-                            $hora[1], 
-                            $aula_id, 
-                            $grupo_id, 
-                            $periodo
+                            $id_maestro, $materia, $dia, $hora[0], $hora[1], $aula_id, $grupo_id, $periodo
                         ]);
                     }
                 }
             }
         }
-        
         $con->commit();
         $_SESSION['mensaje'] = "Horario guardado exitosamente";
-        
-        // --- CAMBIO SOLICITADO AQUÍ ---
-        // Redirigir a la consulta del maestro recién guardado
         header("Location: consulta_horario_maestro.php?maestro=" . $id_maestro);
         exit();
 
@@ -84,15 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_maestro'])) {
     }
 }
 
-// 3. CARGA DE DATOS PARA LOS SELECTS
 $query_maestros = "SELECT * FROM maestros WHERE activo = 'Activo' ORDER BY apellido_paterno, nombre";
 $maestros_result = $con->query($query_maestros);
-
 $materias = $con->query("SELECT * FROM materias ORDER BY materia")->fetchAll(PDO::FETCH_ASSOC);
 $grupos = $con->query("SELECT * FROM grupos WHERE activo = 1 ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 $aulas = $con->query("SELECT * FROM aulas WHERE activo = 1 ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 
-// 4. OBTENER HORARIO ACTUAL
 $horario_actual = [];
 if (isset($_GET['maestro'])) {
     $id_sel = intval($_GET['maestro']);
@@ -108,57 +82,141 @@ if (isset($_GET['maestro'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captura de Horarios - CECyTE</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>Captura Maestro | CECyTE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root { --primary-dark: #0f172a; --accent-green: #059669; }
-        body { background-color: #f1f5f9; color: #334155; font-family: 'Segoe UI', sans-serif; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .card-header { background: white; border-bottom: 1px solid #e2e8f0; padding: 1.5rem; }
-        .table-horario { font-size: 0.85rem; }
-        .celda-horario { background: #fff; transition: background 0.2s; min-width: 150px; }
-        .select-horario { font-size: 0.75rem; border: 1px solid #e2e8f0; border-radius: 6px; }
-        .badge-hora { background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+        :root {
+            --primary: #1a5330;
+            --primary-light: #2e7d32;
+            --secondary: #6c757d;
+            --white: #ffffff;
+            --bg: #f4f6f9;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            padding-top: 90px;
+            color: #333;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: var(--white);
+            height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 5%; position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000; box-shadow: var(--shadow-sm);
+        }
+        .navbar-brand { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        .navbar-brand img { height: 45px; }
+        .navbar-brand span { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+
+        .container { 
+            max-width: 1400px; margin: 0 auto; padding: 0 20px; 
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* --- UI COMPONENTS --- */
+        .content-card {
+            background: var(--white); padding: 30px; border-radius: 20px;
+            box-shadow: var(--shadow-md); border-left: 6px solid var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-flex h2 { color: var(--primary); font-size: 1.5rem; font-weight: 700; }
+
+        .label-mini {
+            font-size: 0.7rem; font-weight: 700; color: var(--secondary);
+            text-transform: uppercase; display: block; margin-bottom: 4px;
+        }
+
+        .form-select, .form-control {
+            border-radius: 10px; border: 1px solid #e0e0e0; padding: 10px;
+            font-size: 0.9rem; transition: var(--transition);
+        }
+
+        /* --- TABLE STYLE --- */
+        .table-horario {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            border-radius: 15px; overflow: hidden; border: 1px solid #edf2f7;
+        }
+        .table-horario th {
+            background: #f8f9fa; color: var(--primary); padding: 15px;
+            font-size: 0.8rem; text-transform: uppercase; font-weight: 700;
+        }
+        .celda-horario {
+            padding: 12px !important; background: #fff; min-width: 180px;
+            border-bottom: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0;
+            transition: var(--transition);
+        }
+        .badge-hora {
+            background: #e8f5e9; color: var(--primary); padding: 6px 10px;
+            border-radius: 8px; font-weight: 700; font-size: 0.8rem;
+        }
+
+        .select-horario { font-size: 0.8rem !important; margin-bottom: 5px; background: #fcfcfc; }
+
+        /* --- BUTTONS --- */
+        .btn-action {
+            padding: 10px 20px; border-radius: 10px; text-decoration: none;
+            font-weight: 600; font-size: 0.85rem; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px; border: none;
+        }
+        .btn-save { background: var(--primary); color: white; width: 100%; justify-content: center; margin-top: 20px; padding: 15px; font-size: 1rem; }
+        .btn-save:hover { background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-back { background: #e9ecef; color: var(--secondary); }
     </style>
 </head>
 <body>
-    <div class="container-xxl py-5">
-        <?php if (isset($_SESSION['mensaje'])): ?>
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class='bx bx-check-circle'></i> <?php echo $_SESSION['mensaje']; unset($_SESSION['mensaje']); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
-        
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="fw-bold text-primary-dark">Gestión de Horarios</h2>
-                <p class="text-muted">Configuración de carga académica para maestros.</p>
-            </div>
-            <a href="horario.php" class="btn btn-outline-secondary"><i class='bx bx-left-arrow-alt'></i> Volver</a>
+    
+    <nav class="navbar">
+        <a href="main.php" class="navbar-brand">
+            <img src="img/logo.png" alt="CECyTE Logo">
+            <span>Gestión Académica</span>
+        </a>
+        <div style="font-size: 0.85rem; font-weight: 600; color: var(--secondary);">
+            <i class="fa-solid fa-user-tie"></i> Admin: <?php echo $_SESSION['username']; ?>
         </div>
-
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="GET" class="row align-items-center g-3">
-                    <div class="col-md-9">
-                        <label class="form-label small fw-bold">Seleccionar Docente</label>
-                        <select name="maestro" class="form-select" onchange="this.form.submit()" required>
-                            <option value="">-- Seleccionar --</option>
-                            <?php foreach ($maestros_result as $maestro): ?>
-                                <option value="<?php echo $maestro['id_maestro']; ?>" <?php echo (isset($_GET['maestro']) && $_GET['maestro'] == $maestro['id_maestro']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($maestro['apellido_paterno'] . ' ' . $maestro['apellido_materno'] . ' ' . $maestro['nombre']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small fw-bold">Periodo</label>
-                        <input type="text" class="form-control bg-light" value="FEB 2026-JUL 2026" readonly>
-                    </div>
-                </form>
+    </nav>
+    
+    <div class="container">
+        <div class="content-card">
+            <div class="header-flex">
+                <div>
+                    <h2><i class="fa-solid fa-chalkboard-user"></i> Captura por Maestro</h2>
+                    <p style="color: var(--secondary); font-size: 0.85rem;">Asignación de carga académica individual</p>
+                </div>
+                <a href="horarios.php" class="btn-action btn-back"><i class="fa-solid fa-arrow-left"></i> Volver</a>
             </div>
+
+            <form method="GET" class="row g-3">
+                <div class="col-md-8">
+                    <label class="label-mini">Docente a configurar</label>
+                    <select name="maestro" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Seleccionar Maestro --</option>
+                        <?php foreach ($maestros_result as $maestro): ?>
+                            <option value="<?php echo $maestro['id_maestro']; ?>" <?php echo (isset($_GET['maestro']) && $_GET['maestro'] == $maestro['id_maestro']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($maestro['apellido_paterno'] . ' ' . $maestro['nombre']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="label-mini">Periodo Escolar</label>
+                    <input type="text" class="form-control" value="FEB 2026-JUL 2026" readonly style="background: #f8f9fa; font-weight: 600;">
+                </div>
+            </form>
         </div>
 
         <?php if (isset($_GET['maestro'])): 
@@ -166,96 +224,94 @@ if (isset($_GET['maestro'])) {
             $stmt = $con->prepare("SELECT * FROM maestros WHERE id_maestro = ?");
             $stmt->execute([$id_maestro]);
             $m = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($m): ?>
+        ?>
+        <form method="POST">
+            <input type="hidden" name="id_maestro" value="<?php echo $id_maestro; ?>">
+            <input type="hidden" name="periodo" value="FEB 2026-JUL 2026">
             
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class='bx bx-chalkboard'></i> Horario de <?php echo htmlspecialchars($m['nombre'] . ' ' . $m['apellido_paterno']); ?></h5>
-                    <button type="button" class="btn btn-sm btn-outline-dark" onclick="window.print()"><i class='bx bx-printer'></i></button>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action=""> 
-                        <input type="hidden" name="id_maestro" value="<?php echo $id_maestro; ?>">
-                        <input type="hidden" name="periodo" value="FEB 2026-JUL 2026">
-                        
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-horario align-middle">
-                                <thead class="table-light text-center">
-                                    <tr>
-                                        <th>Bloque</th>
-                                        <?php foreach ($dias as $d): ?><th><?php echo $d; ?></th><?php endforeach; ?>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($bloques_horarios as $idx => $b): ?>
-                                    <tr>
-                                        <td class="text-center">
-                                            <span class="badge-hora"><?php echo substr($b[0], 0, 5); ?></span>
-                                        </td>
-                                        <?php foreach ($dias as $dia): 
-                                            $h_inicio = $b[0];
-                                            $ha = isset($horario_actual[$dia][$h_inicio]) ? $horario_actual[$dia][$h_inicio] : null;
-                                        ?>
-                                        <td class="celda-horario">
-                                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][materia]" class="form-select select-horario materia-select mb-1">
-                                                <option value="">- Materia -</option>
-                                                <?php foreach ($materias as $mat): ?>
-                                                    <option value="<?php echo $mat['id_materia']; ?>" 
-                                                        <?php echo ($ha && $ha['id_materia'] == $mat['id_materia']) ? 'selected' : ''; ?>
-                                                        data-color="<?php echo $mat['color'] ?? '#3b82f6'; ?>">
-                                                        <?php echo htmlspecialchars($mat['materia']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            
-                                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][grupo]" class="form-select select-horario mb-1">
-                                                <option value="">- Grupo -</option>
+            <div class="content-card" style="padding: 10px; border-left: none; border-top: 6px solid var(--primary);">
+                <div style="overflow-x: auto;">
+                    <table class="table-horario">
+                        <thead>
+                            <tr class="text-center">
+                                <th style="width: 100px;">Bloque</th>
+                                <?php foreach ($dias as $d): ?><th><?php echo $d; ?></th><?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($bloques_horarios as $idx => $b): ?>
+                            <tr>
+                                <td style="text-align: center; background: #fcfdfe; border-right: 1px solid #edf2f7;">
+                                    <span class="badge-hora"><?php echo substr($b[0], 0, 5); ?></span>
+                                </td>
+                                <?php foreach ($dias as $dia): 
+                                    $h_inicio = $b[0];
+                                    $ha = $horario_actual[$dia][$h_inicio] ?? null;
+                                ?>
+                                <td class="celda-horario materia-container">
+                                    <label class="label-mini">Materia</label>
+                                    <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][materia]" class="form-select select-horario materia-select">
+                                        <option value="">- Materia -</option>
+                                        <?php foreach ($materias as $mat): ?>
+                                            <option value="<?php echo $mat['id_materia']; ?>" 
+                                                <?php echo ($ha && $ha['id_materia'] == $mat['id_materia']) ? 'selected' : ''; ?>
+                                                data-color="<?php echo $mat['color'] ?? '#3b82f6'; ?>">
+                                                <?php echo htmlspecialchars($mat['materia']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    
+                                    <div class="row g-1">
+                                        <div class="col-6">
+                                            <label class="label-mini">Grupo</label>
+                                            <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][grupo]" class="form-select select-horario">
+                                                <option value="">- G -</option>
                                                 <?php foreach ($grupos as $g): ?>
                                                     <option value="<?php echo $g['id_grupo']; ?>" <?php echo ($ha && $ha['id_grupo'] == $g['id_grupo']) ? 'selected' : ''; ?>>
                                                         <?php echo $g['nombre']; ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
-                                            
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="label-mini">Aula</label>
                                             <select name="horario[<?php echo $dia; ?>][<?php echo $idx; ?>][aula]" class="form-select select-horario">
-                                                <option value="">- Aula -</option>
+                                                <option value="">- A -</option>
                                                 <?php foreach ($aulas as $a): ?>
                                                     <option value="<?php echo $a['id_aula']; ?>" <?php echo ($ha && $ha['id_aula'] == $a['id_aula']) ? 'selected' : ''; ?>>
                                                         <?php echo $a['nombre']; ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
-                                        </td>
-                                        <?php endforeach; ?>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <button type="submit" class="btn btn-success btn-lg px-5 fw-bold">
-                                <i class='bx bx-save'></i> Guardar Horario
-                            </button>
-                        </div>
-                    </form>
+                                        </div>
+                                    </div>
+                                </td>
+                                <?php endforeach; ?>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
+                
+                <button type="submit" class="btn-action btn-save">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Carga Académica
+                </button>
             </div>
-        <?php endif; endif; ?>
+        </form>
+        <?php endif; ?>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function applyColor(s) {
             const opt = s.options[s.selectedIndex];
-            const col = opt.getAttribute('data-color') || '#3b82f6';
+            const col = opt.getAttribute('data-color') || '#ffffff';
             const cell = s.closest('td');
             if (s.value) {
-                cell.style.backgroundColor = col + '15';
+                cell.style.backgroundColor = col + '12'; // Opacidad muy baja para fondo
                 cell.style.borderLeft = '4px solid ' + col;
             } else {
                 cell.style.backgroundColor = '';
-                cell.style.borderLeft = '1px solid #dee2e6';
+                cell.style.borderLeft = 'none';
             }
         }
         

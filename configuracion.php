@@ -7,7 +7,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-// Simulación de configuración del sistema (Mantenemos tu lógica intacta)
+// Simulación de configuración del sistema (Lógica intacta)
 $configuracion = [
     'notificaciones_email' => true,
     'notificaciones_push' => false,
@@ -24,73 +24,80 @@ $configuracion = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuración - Sistema de Reportes</title>
-    <link rel="shortcut icon" href="img/favicon.ico" type="img/x-icon">
+    <title>Configuración | SGA CECyTE</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     
     <style>
         :root {
-            --sidebar-width: 260px;
-            --sidebar-collapsed: 85px;
-            --primary-color: #1a5330;    /* Verde CECyTE */
-            --secondary-color: #2e7d32;
-            --accent-color: #4caf50;
-            --light-bg: #f4f7f5;
-            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --primary: #1a5330;
+            --primary-light: #2e7d32;
+            --accent: #8bc34a;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow: 0 4px 20px rgba(0,0,0,0.06);
+            --radius: 20px;
         }
 
-        body {
-            background-color: var(--light-bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { 
+            background-color: var(--bg); 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-main);
+            padding-top: 90px;
         }
 
-        /* Layout Responsivo */
-        .main-container { display: flex; min-height: 100vh; }
-        
-        .content-wrapper {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            transition: all 0.3s ease;
-            width: calc(100% - var(--sidebar-width));
+        /* --- NAVBAR --- */
+        .navbar {
+            background: var(--white);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
         }
+        .navbar-brand { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        .navbar-brand img { height: 45px; }
+        .navbar-brand span { font-weight: 700; color: var(--primary); font-size: 1.2rem; }
 
-        /* Ajustes para móviles */
-        @media (max-width: 992px) {
-            .content-wrapper { 
-                margin-left: 0; 
-                width: 100%;
-            }
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-        }
-
-        /* Estilización de Tarjetas de Configuración */
+        /* --- CONFIG CARDS --- */
         .config-card {
-            background: white;
-            border-radius: 15px;
-            border: none;
-            box-shadow: var(--card-shadow);
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.02);
             margin-bottom: 25px;
             overflow: hidden;
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .config-card-header {
-            background: #fff;
             padding: 20px 25px;
-            border-bottom: 1px solid #edf2f7;
+            border-bottom: 1px solid #f1f5f9;
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
         .config-card-header i {
-            font-size: 1.5rem;
-            color: var(--secondary-color);
-            background: #e8f5e9;
-            padding: 10px;
-            border-radius: 10px;
+            width: 42px; height: 42px;
+            background: #f0fdf4;
+            color: var(--primary-light);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; font-size: 1.2rem;
         }
 
         .config-item {
@@ -99,170 +106,205 @@ $configuracion = [
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.2s;
         }
-
         .config-item:last-child { border-bottom: none; }
-        .config-item:hover { background-color: #fcfdfc; }
 
-        .item-label { font-weight: 600; color: #334155; margin-bottom: 2px; }
-        .item-desc { font-size: 0.85rem; color: #64748b; margin: 0; }
+        .item-label { font-weight: 700; color: var(--text-main); margin: 0; font-size: 0.95rem; }
+        .item-desc { font-size: 0.85rem; color: var(--text-sub); margin: 0; }
 
-        /* Custom Switches */
-        .form-check-input:checked {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
+        /* --- ZONA DE PELIGRO --- */
+        .danger-zone { border: 1px solid #fee2e2; }
+        .danger-zone .config-card-header i { background: #fef2f2; color: #ef4444; }
 
-        .danger-zone {
-            border: 1px solid #fee2e2;
-            background: #fffafb;
-        }
-        
-        .danger-zone .config-card-header i {
-            color: #ef4444;
-            background: #fef2f2;
-        }
-
+        /* --- BARRA DE GUARDADO --- */
         .save-bar {
-            position: sticky;
-            bottom: 20px;
-            background: white;
-            padding: 15px 30px;
-            border-radius: 12px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-            z-index: 900;
+            background: var(--white);
+            padding: 20px 30px;
+            border-radius: 18px;
+            box-shadow: var(--shadow);
             margin-top: 20px;
+            margin-bottom: 50px;
+            border: 1px solid rgba(0,0,0,0.05);
         }
+
+        /* --- FORM CONTROLS --- */
+        .form-switch .form-check-input { width: 2.8em; height: 1.4em; cursor: pointer; }
+        .form-check-input:checked { background-color: var(--primary-light); border-color: var(--primary-light); }
+        
+        .form-select {
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26, 83, 48, 0.1); }
+
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white; border: none; font-weight: 700;
+            padding: 10px 25px; border-radius: 12px; transition: 0.3s;
+        }
+        .btn-primary-custom:hover { background: var(--primary-light); transform: translateY(-2px); color: white; }
+
+        footer { color: var(--text-sub); font-size: 0.8rem; padding-bottom: 40px; }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <div class="content-wrapper">
-        <header class="main-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-            <button class="btn d-lg-none" id="mobile-toggle"><i class='bx bx-menu'></i></button>
-            <h5 class="m-0 text-dark fw-bold">Ajustes del Sistema</h5>
-            <span class="badge rounded-pill px-3 py-2" style="background: var(--primary-color);">CECyTE SC</span>
-        </header>
+<nav class="navbar">
+    <a href="main.php" class="navbar-brand">
+        <img src="img/logo.png" alt="CECyTE Logo">
+        <span>CECyTE Santa Catarina</span>
+    </a>
+    <div class="d-flex align-items-center gap-3">
+        <a href="main.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+</nav>
 
-        <main class="p-3 p-md-5">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-7">
-                        <div class="config-card">
-                            <div class="config-card-header">
-                                <i class='bx bx-user-settings'></i>
-                                <h5 class="m-0 fw-bold">Preferencias de Interfaz</h5>
-                            </div>
-                            <div class="config-body">
-                                <div class="config-item">
-                                    <div>
-                                        <p class="item-label">Tema del Sistema</p>
-                                        <p class="item-desc">Alternar entre modo claro y oscuro.</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="tema_oscuro" <?php echo $configuracion['tema_oscuro'] ? 'checked' : ''; ?>>
-                                    </div>
-                                </div>
-                                <div class="config-item">
-                                    <div>
-                                        <p class="item-label">Idioma</p>
-                                        <p class="item-desc">Selecciona tu lenguaje de preferencia.</p>
-                                    </div>
-                                    <select class="form-select form-select-sm w-auto" name="idioma">
-                                        <option value="es" <?php echo ($configuracion['idioma'] == 'es') ? 'selected' : ''; ?>>Español</option>
-                                        <option value="en" <?php echo ($configuracion['idioma'] == 'en') ? 'selected' : ''; ?>>English</option>
-                                    </select>
-                                </div>
-                                <div class="config-item">
-                                    <div>
-                                        <p class="item-label">Resultados por página</p>
-                                        <p class="item-desc">Cantidad de registros en tablas.</p>
-                                    </div>
-                                    <select class="form-select form-select-sm w-auto">
-                                        <option value="25" selected>25 registros</option>
-                                        <option value="50">50 registros</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+<div class="container">
+    <div class="mb-5">
+        <h2 class="fw-800 mb-1" style="color: var(--primary);">Ajustes del Sistema</h2>
+        <p class="text-secondary">Personaliza tu experiencia de usuario y gestiona las preferencias del portal.</p>
+    </div>
 
-                        <div class="config-card">
-                            <div class="config-card-header">
-                                <i class='bx bx-bell'></i>
-                                <h5 class="m-0 fw-bold">Notificaciones</h5>
-                            </div>
-                            <div class="config-body">
-                                <div class="config-item">
-                                    <div>
-                                        <p class="item-label">Correos Electrónicos</p>
-                                        <p class="item-desc">Recibir alertas de entrada/salida por email.</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" checked>
-                                    </div>
-                                </div>
-                                <div class="config-item">
-                                    <div>
-                                        <p class="item-label">Alertas de Escritorio</p>
-                                        <p class="item-desc">Notificaciones push en el navegador.</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-5">
-                        <div class="config-card">
-                            <div class="config-card-header">
-                                <i class='bx bx-time-five'></i>
-                                <h5 class="m-0 fw-bold">Región y Tiempo</h5>
-                            </div>
-                            <div class="config-body p-4">
-                                <div class="mb-3">
-                                    <label class="form-label item-label">Zona Horaria</label>
-                                    <select class="form-select">
-                                        <option><?php echo $configuracion['zona_horaria']; ?></option>
-                                    </select>
-                                </div>
-                                <div class="mb-0">
-                                    <label class="form-label item-label">Formato de Fecha</label>
-                                    <select class="form-select">
-                                        <option value="d/m/Y">DD/MM/AAAA</option>
-                                        <option value="Y-m-d">AAAA-MM-DD</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="config-card danger-zone">
-                            <div class="config-card-header">
-                                <i class='bx bx-shield-x'></i>
-                                <h5 class="m-0 fw-bold text-danger">Zona de Peligro</h5>
-                            </div>
-                            <div class="p-4">
-                                <p class="item-desc mb-3">Estas acciones afectan la integridad de tus datos locales.</p>
-                                <button class="btn btn-outline-danger btn-sm w-100 mb-2">Limpiar Cache</button>
-                                <button class="btn btn-danger btn-sm w-100">Borrar cuenta</button>
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="config-card">
+                <div class="config-card-header">
+                    <i class="fas fa-desktop"></i>
+                    <h5 class="m-0 fw-bold">Personalización Visual</h5>
                 </div>
-
-                <div class="save-bar d-flex justify-content-between align-items-center">
-                    <span class="text-muted d-none d-md-inline small"><i class='bx bx-info-circle'></i> Los cambios se aplicarán al recargar.</span>
-                    <div>
-                        <button class="btn btn-light px-4 me-2">Cancelar</button>
-                        <button class="btn btn-success px-4" style="background-color: var(--secondary-color);">Guardar Cambios</button>
+                <div class="config-body">
+                    <div class="config-item">
+                        <div>
+                            <p class="item-label">Modo Oscuro</p>
+                            <p class="item-desc">Optimiza la interfaz para entornos con poca iluminación.</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="tema_oscuro" <?php echo $configuracion['tema_oscuro'] ? 'checked' : ''; ?>>
+                        </div>
+                    </div>
+                    <div class="config-item">
+                        <div>
+                            <p class="item-label">Idioma del Portal</p>
+                            <p class="item-desc">Selecciona el lenguaje predeterminado.</p>
+                        </div>
+                        <select class="form-select w-auto">
+                            <option value="es" <?php echo ($configuracion['idioma'] == 'es') ? 'selected' : ''; ?>>Español (MX)</option>
+                            <option value="en" <?php echo ($configuracion['idioma'] == 'en') ? 'selected' : ''; ?>>English (US)</option>
+                        </select>
+                    </div>
+                    <div class="config-item">
+                        <div>
+                            <p class="item-label">Densidad de Datos</p>
+                            <p class="item-desc">Cantidad de registros mostrados en las tablas.</p>
+                        </div>
+                        <select class="form-select w-auto">
+                            <option value="25" selected>25 filas</option>
+                            <option value="50">50 filas</option>
+                            <option value="100">100 filas</option>
+                        </select>
                     </div>
                 </div>
             </div>
-        </main>
+
+            <div class="config-card">
+                <div class="config-card-header">
+                    <i class="fas fa-bell"></i>
+                    <h5 class="m-0 fw-bold">Alertas y Notificaciones</h5>
+                </div>
+                <div class="config-body">
+                    <div class="config-item">
+                        <div>
+                            <p class="item-label">Alertas por Correo</p>
+                            <p class="item-desc">Enviar notificaciones de asistencia a tutores.</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" checked>
+                        </div>
+                    </div>
+                    <div class="config-item">
+                        <div>
+                            <p class="item-label">Notificaciones de Escritorio</p>
+                            <p class="item-desc">Mostrar ventanas emergentes en el navegador.</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="config-card">
+                <div class="config-card-header">
+                    <i class="fas fa-clock"></i>
+                    <h5 class="m-0 fw-bold">Región y Tiempo</h5>
+                </div>
+                <div class="p-4">
+                    <div class="mb-4">
+                        <label class="item-label mb-2 d-block">Zona Horaria</label>
+                        <select class="form-select w-100">
+                            <option selected><?php echo $configuracion['zona_horaria']; ?> (GMT-6)</option>
+                            <option>America/Monterrey</option>
+                            <option>America/New_York</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="item-label mb-2 d-block">Formato de Fecha</label>
+                        <div class="d-flex gap-2">
+                            <div class="flex-grow-1">
+                                <input type="radio" class="btn-check" name="datefmt" id="fmt1" checked>
+                                <label class="btn btn-outline-secondary w-100 btn-sm fw-bold" for="fmt1" style="border-radius: 8px;">DD/MM/AAAA</label>
+                            </div>
+                            <div class="flex-grow-1">
+                                <input type="radio" class="btn-check" name="datefmt" id="fmt2">
+                                <label class="btn btn-outline-secondary w-100 btn-sm fw-bold" for="fmt2" style="border-radius: 8px;">AAAA-MM-DD</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-card danger-zone">
+                <div class="config-card-header">
+                    <i class="fas fa-shield-halved"></i>
+                    <h5 class="m-0 fw-bold text-danger">Seguridad y Privacidad</h5>
+                </div>
+                <div class="p-4">
+                    <p class="item-desc mb-3">Acciones de mantenimiento y protección de cuenta.</p>
+                    <button class="btn btn-outline-danger btn-sm w-100 mb-2 fw-bold py-2" style="border-radius: 10px;">
+                        <i class="fas fa-trash-can me-2"></i>Limpiar Caché del Sistema
+                    </button>
+                    <button class="btn btn-danger btn-sm w-100 fw-bold py-2" style="border-radius: 10px;">
+                        <i class="fas fa-power-off me-2"></i>Cerrar sesiones activas
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div class="save-bar d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-2">
+            <div class="spinner-grow spinner-grow-sm text-success" role="status"></div>
+            <span class="text-secondary small fw-500">Los cambios se sincronizan en la nube.</span>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-light px-4 fw-bold text-secondary" style="border-radius: 12px; border: 1.5px solid #e2e8f0;">Descartar</button>
+            <button class="btn-primary-custom px-4 shadow-sm">
+                <i class="fas fa-floppy-disk me-2"></i>Guardar Cambios
+            </button>
+        </div>
+    </div>
+
+    <footer class="text-center">
+        CECyTE Santa Catarina &copy; 2026 | Sistema de Gestión Académica (SGA)
+    </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

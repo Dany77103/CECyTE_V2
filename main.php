@@ -39,6 +39,18 @@ require_once 'conexion.php';
             padding-top: 90px; /* Espacio para el header fijo */
         }
 
+        /* --- ANIMACIÓN DE ENTRADA --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* --- NAVBAR SUPERIOR --- */
         .navbar {
             background: var(--white);
@@ -97,7 +109,13 @@ require_once 'conexion.php';
         .btn-logout:hover { background: #f5c6cb; transform: translateY(-2px); }
 
         /* --- CONTENEDOR --- */
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+            /* Aplicación de la animación */
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
         
         /* Bienvenida */
         .welcome-section { 
@@ -212,7 +230,7 @@ require_once 'conexion.php';
     
     <nav class="navbar">
         <a href="main.php" class="navbar-brand">
-            <img src="img/logo_cecyte.jpg" alt="CECyTE Logo">
+            <img src="img/logo.png" alt="CECyTE Logo">
             <span>CECyTE Santa Catarina</span>
         </a>
         <div class="user-controls">
